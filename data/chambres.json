@@ -6,28 +6,16 @@
     "lits": "1 King",
     "surface": 40,
     "sdb": 1,
-    "resume": "The quietest of the six. A king bed under hand painted botanical paper, a desk by the window and a garden terrace of your own.",
+    "resume": "A deep blue alcove behind the bed, a blue velvet sofa under the window and a bathroom cut from black marble.",
     "corps": [
       "The air conditioned suite has one bedroom and one bathroom with a walk in shower and a hairdryer. A terrace opens onto the garden. The room comes with a tea and coffee maker and a flat screen television.",
-      "The walls carry a koi motif in soft blue. The bathroom is lined in black marble, with a grab bar at the shower and a floor that runs level with the bedroom."
+      "The headboard sits inside an arched blue panel traced with a gold rope motif. Across the room, a blue sofa and a round rattan table face the garden doors. The bathroom is lined in black marble, with a freestanding tub beside the shower."
     ],
     "photos": [
-      {
-        "f": "junior-1",
-        "alt": "King bed against a blue koi mural, with bedside lamps and a dark panelled wall"
-      },
-      {
-        "f": "junior-2",
-        "alt": "Black marble bathroom with a walk in shower and a grab bar"
-      },
-      {
-        "f": "junior-3",
-        "alt": "Private terrace opening onto the garden"
-      },
-      {
-        "f": "junior-4",
-        "alt": "Desk and flat screen television in the corner of the room"
-      }
+      { "f": "junior-1", "alt": "King bed set in a deep blue arched alcove, with a blue velvet sofa and a herringbone wood floor" },
+      { "f": "junior-4", "alt": "Wide view of the suite, with a blue sofa, a rattan table and doors onto the garden" },
+      { "f": "junior-2", "alt": "Bathroom in black marble, with a freestanding tub, a walk in shower and a tall oval mirror" },
+      { "f": "junior-3", "alt": "Private garden terrace with tropical planting and a seat in the shade" }
     ],
     "meta": "Book the Deluxe Junior Suite at La Belle Vie, an adults only boutique hotel in Ban Tai, Koh Phangan. Forty square metres, king bed, private garden terrace."
   },
@@ -38,32 +26,17 @@
     "lits": "1 King + 1 Bunk",
     "surface": 55,
     "sdb": 1,
-    "resume": "Teak panelling, a bamboo screen and the Anis Dargaa elephant on the wall. A round daybed waits in the garden outside.",
+    "resume": "Teak panelling, a large elephant portrait above the bed and a round daybed waiting in the garden outside.",
     "corps": [
       "The triple room has air conditioning, a tea and coffee maker, a terrace with garden views and a private bathroom with a walk in shower.",
-      "A bamboo screen separates the sleeping area from the terrace doors. The bathroom mixes brick and marble. Outside, a round daybed sits under the palms."
+      "Chevron teak runs the width of the wall behind the bed, with the elephant looking down from the middle of it. A desk, a television and a mini fridge sit along the opposite side. The bathroom mixes marble and brick, with twin basins under a backlit mirror."
     ],
     "photos": [
-      {
-        "f": "triple-1",
-        "alt": "Bedroom with teak panelling and a framed Anis Dargaa elephant artwork"
-      },
-      {
-        "f": "triple-2",
-        "alt": "Close view of the Eléphantasme Pop artwork by Anis Dargaa"
-      },
-      {
-        "f": "triple-3",
-        "alt": "Garden with a hammock and a hanging bench"
-      },
-      {
-        "f": "triple-4",
-        "alt": "King bed beside a bamboo screen, with cage lanterns overhead"
-      },
-      {
-        "f": "triple-5",
-        "alt": "Bathroom in brick and marble with a walk in shower"
-      }
+      { "f": "triple-4", "alt": "King bed against chevron teak panelling, under a large framed elephant portrait" },
+      { "f": "triple-5", "alt": "Wide view of the room, with the elephant portrait, a chaise longue and a desk" },
+      { "f": "triple-2", "alt": "Desk, television and mini fridge along the window wall" },
+      { "f": "triple-1", "alt": "Bathroom in marble and brick, with twin basins under a backlit mirror" },
+      { "f": "triple-3", "alt": "Private garden with a round rattan daybed under the palms" }
     ],
     "meta": "Stay in the Deluxe Triple Room at La Belle Vie, an adults only boutique hotel in Ban Tai, Koh Phangan. Fifty five square metres with a private garden."
   },
@@ -74,28 +47,16 @@
     "lits": "1 King + 2 Singles",
     "surface": 68,
     "sdb": 1,
-    "resume": "The largest room on the property. A king bed, two singles, a dressing room and a bathroom in dark stone.",
+    "resume": "The largest room on the property. Arched wooden shelving the length of one wall, a dressing area and a bathroom in dark stone.",
     "corps": [
-      "The spacious room has air conditioning, a tea and coffee maker, a terrace with garden views and a private bathroom with a walk in shower.",
-      "A corridor hung with red curtains leads from the sleeping area to the dressing room. Everything sits on one level, with no step between the bedroom, the bathroom and the garden."
+      "The room has air conditioning, a tea and coffee maker, a terrace with garden views and a private bathroom with a walk in shower.",
+      "Arched alcoves in warm wood run down one side, holding the wardrobe and the shelving. A short corridor hung with deep red curtains leads through to the bathroom. Everything sits on one level, with no step between the beds, the bathroom and the garden."
     ],
     "photos": [
-      {
-        "f": "family-1",
-        "alt": "Two single beds beside a king bed in the family room"
-      },
-      {
-        "f": "family-2",
-        "alt": "Dressing room with open hanging space"
-      },
-      {
-        "f": "family-3",
-        "alt": "Corridor hung with red curtains"
-      },
-      {
-        "f": "family-4",
-        "alt": "Bathroom in dark stone with a walk in shower"
-      }
+      { "f": "family-3", "alt": "Wide view of the family room, with arched wooden shelving, a king bed and a second bed" },
+      { "f": "family-2", "alt": "Dressing area with open wardrobe alcoves and doors onto the garden" },
+      { "f": "family-4", "alt": "Corridor hung with deep red curtains, leading to the bathroom" },
+      { "f": "family-1", "alt": "Bathroom in dark stone, with a walk in shower and a long basin counter" }
     ],
     "meta": "Book the Deluxe Family Room at La Belle Vie in Ban Tai, Koh Phangan. Sixty eight square metres, four guests, step free throughout."
   },
@@ -106,28 +67,16 @@
     "lits": "1 King",
     "surface": 45,
     "sdb": 1,
-    "resume": "A palm leaf fan turning over the bed, a bamboo screen filtering the morning light and the pool a few steps away.",
+    "resume": "A palm leaf fan turning over the bed, cage lanterns either side of it and the brightest Anis Dargaa in the house on the wall.",
     "corps": [
       "The air conditioned room has a king bed, a tea and coffee maker, a terrace with garden views and a private bathroom with a walk in shower.",
-      "Cage lanterns hang either side of the bed. A blue elephant by Anis Dargaa faces the sleeping area. The garden holds a hammock and a hanging bench. The pool is a short level walk away."
+      "Hand painted botanical paper covers the wall above a deep green panelled wainscot. A bamboo screen filters the light from the terrace. The elephant by Anis Dargaa hangs opposite the bed, in pink, blue and green. Outside, the garden holds a hammock and a hanging bench."
     ],
     "photos": [
-      {
-        "f": "poolview-1",
-        "alt": "King bed under a palm leaf ceiling fan, with terrace doors onto the garden"
-      },
-      {
-        "f": "poolview-2",
-        "alt": "Blue elephant artwork by Anis Dargaa above a bamboo screen"
-      },
-      {
-        "f": "poolview-3",
-        "alt": "Garden with a hammock and a hanging bench under the palms"
-      },
-      {
-        "f": "poolview-4",
-        "alt": "King bed with cage lanterns and botanical wallpaper"
-      }
+      { "f": "poolview-1", "alt": "King bed under a palm leaf ceiling fan, with cage lanterns and botanical wallpaper" },
+      { "f": "poolview-2", "alt": "The Eléphantasme Pop artwork by Anis Dargaa on the wall facing the bed" },
+      { "f": "poolview-4", "alt": "The bed seen past a bamboo screen, under botanical wallpaper and a cage lantern" },
+      { "f": "poolview-3", "alt": "Private garden with a hammock and a hanging bench under the palms" }
     ],
     "meta": "Stay in the Deluxe King Room with Pool View at La Belle Vie in Ban Tai, Koh Phangan. Forty five square metres, king bed, garden terrace."
   },
@@ -141,25 +90,13 @@
     "resume": "Lacquered black walls, a deep red headboard and a salah of your own on the terrace. The most theatrical room in the house.",
     "corps": [
       "The room has air conditioning, a tea and coffee maker, a terrace with garden views and a private bathroom with a walk in shower.",
-      "A red elephant by Anis Dargaa hangs above the bed, with a gilded leaf facing it across the room. Outside, rattan armchairs sit in the shade of your own salah."
+      "A red elephant by Anis Dargaa hangs above the bed, with a gilded leaf facing it across the room. A curved white daybed runs under the window. A red lacquered cabinet stands beside the desk. Outside, rattan armchairs sit in the shade of your own salah."
     ],
     "photos": [
-      {
-        "f": "salah-2",
-        "alt": "King bed with a deep red headboard under a red elephant artwork"
-      },
-      {
-        "f": "salah-3",
-        "alt": "Wide view of the room with a curved daybed and a red cabinet"
-      },
-      {
-        "f": "salah-1",
-        "alt": "Rattan armchairs on a private terrace beside the sliding doors"
-      },
-      {
-        "f": "salah-4",
-        "alt": "Coffee corner in teak beside the bedroom door"
-      }
+      { "f": "salah-2", "alt": "King bed with a deep red velvet headboard, under a red elephant artwork on a black lacquered wall" },
+      { "f": "salah-3", "alt": "Wide view of the room, with a curved white daybed, a red lacquered cabinet and a desk" },
+      { "f": "salah-4", "alt": "Coffee corner in teak, with a mirror reflecting the bed" },
+      { "f": "salah-1", "alt": "Rattan armchairs on the private terrace, seen from the garden" }
     ],
     "meta": "Book the Deluxe King Room with Private Salah at La Belle Vie in Ban Tai, Koh Phangan. Fifty five square metres and a private salah on the terrace."
   },
@@ -170,32 +107,17 @@
     "lits": "1 King",
     "surface": 60,
     "sdb": 1,
-    "resume": "A separate living room, a four poster bed behind white voile and a terrace with water on two sides. Closer to an apartment than a room.",
+    "resume": "A separate living room facing the water, a four poster bed behind white voile and a terrace with channels of water on two sides.",
     "corps": [
       "The suite has one living room, one separate bedroom and one bathroom with a walk in shower and bathrobes. A terrace opens onto the garden. The suite comes with air conditioning and a flat screen television.",
-      "The living room holds green velvet armchairs and a coffee table cut from a single slab. The bathroom is papered in dark florals and lit by a gilded mirror."
+      "The living room holds green velvet armchairs and a coffee table cut from a single slab of wood. A long desk sits under the window with a banker lamp on it. The bathroom is papered in dark florals and lit by a gilded mirror."
     ],
     "photos": [
-      {
-        "f": "presidential-1",
-        "alt": "Living room with green velvet armchairs and a carved wooden cabinet"
-      },
-      {
-        "f": "presidential-2",
-        "alt": "Desk under the window with a banker lamp"
-      },
-      {
-        "f": "presidential-3",
-        "alt": "Terrace with water features and a rattan daybed"
-      },
-      {
-        "f": "presidential-4",
-        "alt": "Bathroom with dark floral wallpaper and a gilded mirror"
-      },
-      {
-        "f": "presidential-5",
-        "alt": "Four poster bed behind white voile curtains"
-      }
+      { "f": "presidential-1", "alt": "Living room with green velvet armchairs, a carved white cabinet and glass doors onto the water" },
+      { "f": "presidential-5", "alt": "Four poster bed behind white voile curtains, with green velvet armchairs in front of it" },
+      { "f": "presidential-2", "alt": "Long desk under the window with a green banker lamp and a bamboo ladder" },
+      { "f": "presidential-3", "alt": "Terrace with channels of water and planting, the living room open behind" },
+      { "f": "presidential-4", "alt": "Bathroom with dark floral wallpaper, a gilded mirror and a carved washstand" }
     ],
     "meta": "Discover the Presidential Suite at La Belle Vie in Ban Tai, Koh Phangan. Sixty square metres with a separate living room and a garden terrace."
   }

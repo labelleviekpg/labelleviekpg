@@ -14,7 +14,8 @@ qu'il faut verifier. Chaque correction tient en une ligne dans `data/`.
 | Presidential Suite, lits | 1 King sur l'accueil, 1 King + 1 Bunk sur la fiche | 1 King | Les photos montrent un lit a baldaquin, pas de bunk. |
 | Private Salah, lit | Queen sur l'accueil, King sur la fiche | 1 King | La photo montre bien un king. |
 | Pool View, description | copiee de la Family Room, donc fausse | reecrite depuis les photos | |
-| Family Room, lits | 1 King + 1 Twin | 1 King + 2 Singles | Les photos montrent deux lits simples distincts. |
+| Family Room, lits | 1 King + 1 Twin | 1 King + 2 Singles | Les photos montrent un king et un second lit. A confirmer. |
+| Triple Room, tableau | non mentionne | "a large elephant portrait" | Le grand portrait d'elephant au-dessus du lit n'est pas signe sur la photo. Je ne l'ai pas attribue a Anis Dargaa faute de certitude. C'est de lui ? |
 | Gym Facility | present sur la seule fiche Family | **retire partout** | Il y a une salle de sport ou non ? |
 | Prix | "from 4500 THB" sur les six, donc une valeur par defaut | **aucun prix affiche** | Les prix reels vivent dans le moteur de reservation. Si tu veux les afficher, donne-moi la grille. |
 
@@ -30,6 +31,7 @@ qu'il faut verifier. Chaque correction tient en une ligne dans `data/`.
 
 Les six series de photos que tu m'as envoyees ont ete rattachees comme ceci.
 Si l'une est mal placee, c'est une ligne a bouger dans `outils/images.sh`.
+Chaque texte alternatif a ete ecrit en regardant la photo, pas de memoire.
 
 | Ta serie | Chambre |
 |---|---|
