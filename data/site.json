@@ -1,0 +1,32 @@
+{
+  "nom": "La Belle Vie",
+  "nomLong": "La Belle Vie, Boutique Hotel Adults Only",
+  "baseline": "A beautiful boutique hotel on the paradise island of Koh Phangan, in Thailand.",
+  "adresse": "112, 5, Ban Tai, Koh Phangan, Surat Thani 84280, Thailand",
+  "tel": "+66 62 398 7847",
+  "telLien": "+66623987847",
+  "mail": "booking@labelleviekpg.com",
+  "mailEvents": "events@labelleviekpg.com",
+  "facebook": "https://www.facebook.com/labelleviekpg/",
+  "instagram": "https://www.instagram.com/labelleviekpg/",
+  "reservation": "https://book-directonline.com/properties/labellevie-boutiquehoteladultsonly",
+  "video": "2SAt0HK6fgI",
+  "site": "https://www.labelleviekpg.com",
+  "geo": { "lat": 9.6889, "lon": 100.0317 },
+  "artiste": "Anis Dargaa",
+  "nav": [
+    { "url": "/", "texte": "Home" },
+    { "url": "/about", "texte": "About" },
+    { "url": "/accommodations", "texte": "Rooms" },
+    { "url": "/location", "texte": "Location" },
+    { "url": "/contact", "texte": "Contact" }
+  ],
+  "services": [
+    { "icone": "wifi", "nom": "Free high speed Wi-Fi" },
+    { "icone": "piscine", "nom": "Lagoon swimming pool" },
+    { "icone": "bar", "nom": "Self service bar, drinks included" },
+    { "icone": "linge", "nom": "Laundry service" },
+    { "icone": "parking", "nom": "Free parking" },
+    { "icone": "acces", "nom": "Step free throughout" }
+  ]
+}

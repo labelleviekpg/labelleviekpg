@@ -1,0 +1,11 @@
+{
+  "name": "labelleviekpg",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "pages": "node outils/pages.mjs",
+    "essai": "wrangler dev",
+    "deploie": "node outils/pages.mjs && wrangler deploy"
+  },
+  "devDependencies": { "wrangler": "^4.42.0" }
+}

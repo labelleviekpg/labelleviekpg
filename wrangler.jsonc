@@ -1,0 +1,19 @@
+{
+  // Le site public de La Belle Vie. Pages statiques dans public/,
+  // une seule route de code pour le formulaire de contact.
+  "name": "labelleviekpg",
+  "main": "src/index.js",
+  "compatibility_date": "2025-10-01",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "html_handling": "drop-trailing-slash",
+    "not_found_handling": "404-page"
+  },
+  "d1_databases": [
+    { "binding": "DB", "database_name": "labelleviekpg", "database_id": "A_REMPLIR_VOIR_LISEZMOI" }
+  ],
+  "vars": {
+    "CONTACT_VERS": "events@labelleviekpg.com"
+  }
+}
