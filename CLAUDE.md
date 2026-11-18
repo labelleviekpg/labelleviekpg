@@ -47,3 +47,26 @@ la largeur de chaque photo pour que la derniere rangee se remplisse toujours :
 multiple de trois, trois par rangee ; nombre pair, deux par rangee ; sinon la
 derniere rangee s'elargit. Une grille ouverte laisse un trou des que le nombre
 de photos ne tombe pas juste, et ca se voit comme une image manquante.
+
+## La page evenements
+
+Le client compose sa semaine. Chaque prestation se choisit selon son `choix`,
+servi par le moteur : `jours` ouvre un selecteur de dates, `sessions` un
+compteur, `oui-non` reste une case. Le bloc "Your own plan" laisse ecrire des
+lignes libres avec leurs jours : elles n'ont pas de prix, elles voyagent avec la
+demande et arrivent sur la fiche de l'equipe.
+
+Le detail du devis ne doit jamais raconter autre chose que le total : si une
+prestation ne tourne que trois soirs, le calcul affiche trois soirs. Un client
+qui compare deux devis doit pouvoir refaire l'addition.
+
+## Le Worker voit toutes les pages
+
+`run_worker_first` est a `true`. Sans lui, Cloudflare sert les fichiers
+statiques sans jamais appeler le code : la balise canonical gardait l'adresse de
+production meme sur une adresse workers.dev, et les en-tetes de cache des images
+ne s'appliquaient pas.
+
+Le Worker recolle `canonical`, `og:url` et `og:image` sur l'hote reellement
+servi. Tant que le domaine n'est pas branche, une balise qui pointe sur
+www.labelleviekpg.com envoie les moteurs vers l'ancien site WordPress.

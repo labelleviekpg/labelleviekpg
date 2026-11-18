@@ -114,27 +114,204 @@
     var a = el("a").value, dd = el("d").value;
     if (!a || (a && dd) || j <= a){ el("a").value = j; el("d").value = ""; }
     else el("d").value = j;
+    tailleLesJours();
     dessineMois();
+    dessineOptions();
     calcule();
   }
 
-  /* ---------- les options ---------- */
+  /* ---------- les options ----------
+     Une prestation n'est plus tout ou rien. Sur trois semaines, personne ne
+     veut un diner les vingt et un soirs : le client designe ses jours, ou
+     dit combien de fois. C'est lui qui compose sa semaine. */
   var UNITE = { 1: "per guest, per night", 2: "per guest", 3: "per stay", 4: "per day" };
+  var PRIS = {};     /* id -> { q: 1, jours: [...] | null } */
+  var MIENS = [];    /* les lignes que le client ecrit lui-meme */
+
+  function nuitsDuSejour(){
+    var a = el("a").value, d = el("d").value, out = [];
+    if (!a || !d || d <= a) return out;
+    var t = new Date(a + "T00:00:00"), fin = new Date(d + "T00:00:00");
+    while (t < fin){ out.push(iso(t)); t.setDate(t.getDate() + 1); }
+    return out;
+  }
+
+  /* Un changement de dates ne doit pas laisser trainer un jour hors sejour. */
+  function tailleLesJours(){
+    var dedans = {}, n = nuitsDuSejour(), i;
+    for (i = 0; i < n.length; i++) dedans[n[i]] = true;
+    var net = function(j){ return (j || []).filter(function(x){ return dedans[x]; }); };
+    for (var id in PRIS){
+      if (PRIS[id] && PRIS[id].jours){
+        var g = net(PRIS[id].jours);
+        PRIS[id].jours = g.length ? g : null;
+      }
+    }
+    for (i = 0; i < MIENS.length; i++) MIENS[i].jours = net(MIENS[i].jours);
+  }
+
+  var JC = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  function puce(j){
+    var d = new Date(j + "T00:00:00");
+    return JC[d.getDay()] + " " + d.getDate();
+  }
+
+  function stripJours(id, choisis, ouvert){
+    var n = nuitsDuSejour();
+    if (!n.length) return '<span class="aide">Choose your dates first.</span>';
+    var tous = !choisis;
+    var cpt = tous ? n.length : choisis.length;
+    var h = ['<span class="resume">' +
+      (tous ? "Every day of the stay" : cpt + " of " + n.length + " days") +
+      '</span><button type="button" class="change" data-ouvre="' + E(id) + '">' +
+      (ouvert ? "Done" : "Pick the days") + "</button>"];
+    if (!ouvert) return h.join("");
+    h.push('<span class="raccourcis">' +
+      '<button type="button" data-tout="' + E(id) + '">All</button>' +
+      '<button type="button" data-rien="' + E(id) + '">None</button></span>');
+    h.push('<span class="puces">' + n.map(function(j){
+      var on = tous || choisis.indexOf(j) >= 0;
+      return '<button type="button" class="puce' + (on ? " on" : "") +
+        '" data-jour="' + E(id) + '|' + j + '">' + puce(j) + "</button>";
+    }).join("") + "</span>");
+    return h.join("");
+  }
+
+  var OUVERT = null;   /* l'option dont le choix de jours est deplie */
+
   function dessineOptions(){
     var c = el("opts");
     if (!c) return;
     c.innerHTML = OPTIONS.map(function(o){
-      return '<label class="opt"><input type="checkbox" data-o="' + E(o.id) + '">' +
-        '<span><b>' + E(o.nom) + "</b><i>" + sou(o.prix) + " THB " +
-        (UNITE[o.unite] || "") + "</i></span></label>";
-    }).join("");
+      var pris = PRIS[o.id];
+      var h = ['<div class="opt' + (pris ? " on" : "") + '">'];
+      h.push('<label><input type="checkbox" data-o="' + E(o.id) + '"' +
+        (pris ? " checked" : "") + '><span><b>' + E(o.nom) + "</b><i>" +
+        sou(o.prix) + " THB " + (UNITE[o.unite] || "") + "</i></span></label>");
+      if (pris){
+        if (o.choix === "jours")
+          h.push('<div class="reglage">' + stripJours(o.id, pris.jours, OUVERT === o.id) + "</div>");
+        else if (o.choix === "sessions")
+          h.push('<div class="reglage"><label class="pt" for="q-' + E(o.id) + '">How many</label>' +
+            '<input class="nb" id="q-' + E(o.id) + '" type="number" min="1" max="60" value="' +
+            (pris.q || 1) + '" data-q="' + E(o.id) + '"><span class="aide">' +
+            "each guest, " + sou(o.prix) + " THB a time</span></div>");
+      }
+      h.push("</div>");
+      return h.join("");
+    }).join("") + mesLignes();
   }
+
+  /* ---------- les lignes du client ----------
+     Temps libre, une excursion, une habitude du groupe. Elles n'ont pas de
+     prix : on ne devine pas ce qu'on n'a pas chiffre. Elles voyagent avec la
+     demande et arrivent sur la fiche de l'equipe. */
+  function mesLignes(){
+    var n = nuitsDuSejour();
+    var h = ['<div class="opt mien"><b class="tt">Your own plan</b>' +
+      '<span class="aide">Free time, an outing, anything you want on the week. ' +
+      "We read these and come back with a price if there is one.</span>"];
+    for (var i = 0; i < MIENS.length; i++){
+      h.push('<div class="ligne-mien"><input class="txt" data-mt="' + i +
+        '" value="' + E(MIENS[i].texte) + '" placeholder="What is it">' +
+        '<button type="button" class="ote" data-mo="' + i + '" aria-label="Remove">\u00d7</button>');
+      if (n.length)
+        h.push('<span class="puces">' + n.map(function(j){
+          var on = MIENS[i].jours.indexOf(j) >= 0;
+          return '<button type="button" class="puce' + (on ? " on" : "") +
+            '" data-mj="' + i + "|" + j + '">' + puce(j) + "</button>";
+        }).join("") + "</span>");
+      h.push("</div>");
+    }
+    h.push('<button type="button" class="ajoute" id="mien-plus">Add a line</button></div>');
+    return h.join("");
+  }
+
   function quantites(){
     var q = {};
-    Array.prototype.forEach.call(document.querySelectorAll("#opts input[data-o]"), function(i){
-      if (i.checked) q[i.getAttribute("data-o")] = 1;
-    });
+    for (var id in PRIS){
+      if (!PRIS[id]) continue;
+      q[id] = { q: PRIS[id].q || 1 };
+      if (PRIS[id].jours) q[id].jours = PRIS[id].jours;
+    }
     return q;
+  }
+
+  /* Un seul ecouteur sur le bloc, qui survit aux redessins. */
+  function brancheOptions(){
+    var c = el("opts");
+    c.addEventListener("change", function(e){
+      var t = e.target;
+      if (t.matches("input[data-o]")){
+        var id = t.getAttribute("data-o");
+        PRIS[id] = t.checked ? { q: 1, jours: null } : null;
+        if (!t.checked && OUVERT === id) OUVERT = null;
+        dessineOptions(); calcule(); return;
+      }
+      if (t.matches("input[data-q]")){
+        var k = t.getAttribute("data-q");
+        if (PRIS[k]) PRIS[k].q = Math.max(1, parseInt(t.value, 10) || 1);
+        calcule(); return;
+      }
+      if (t.matches("input[data-mt]")){
+        MIENS[+t.getAttribute("data-mt")].texte = t.value;
+      }
+    });
+    c.addEventListener("input", function(e){
+      if (e.target.matches("input[data-mt]"))
+        MIENS[+e.target.getAttribute("data-mt")].texte = e.target.value;
+    });
+    c.addEventListener("click", function(e){
+      var b = e.target.closest("button");
+      if (!b) return;
+      var v;
+      if ((v = b.getAttribute("data-ouvre")) !== null){
+        OUVERT = OUVERT === v ? null : v; dessineOptions(); return;
+      }
+      if ((v = b.getAttribute("data-tout")) !== null){
+        if (PRIS[v]) PRIS[v].jours = null; dessineOptions(); calcule(); return;
+      }
+      if ((v = b.getAttribute("data-rien")) !== null){
+        if (PRIS[v]) PRIS[v].jours = [];  dessineOptions(); calcule(); return;
+      }
+      if ((v = b.getAttribute("data-jour")) !== null){
+        var p = v.split("|"), id = p[0], j = p[1];
+        if (!PRIS[id]) return;
+        var liste = PRIS[id].jours ? PRIS[id].jours.slice() : nuitsDuSejour();
+        var k = liste.indexOf(j);
+        if (k >= 0) liste.splice(k, 1); else liste.push(j);
+        liste.sort();
+        PRIS[id].jours = liste.length === nuitsDuSejour().length ? null : liste;
+        dessineOptions(); calcule(); return;
+      }
+      if ((v = b.getAttribute("data-mj")) !== null){
+        var q = v.split("|"), i = +q[0], jj = q[1];
+        var kk = MIENS[i].jours.indexOf(jj);
+        if (kk >= 0) MIENS[i].jours.splice(kk, 1); else MIENS[i].jours.push(jj);
+        MIENS[i].jours.sort();
+        dessineOptions(); return;
+      }
+      if ((v = b.getAttribute("data-mo")) !== null){
+        MIENS.splice(+v, 1); dessineOptions(); return;
+      }
+      if (b.id === "mien-plus"){
+        MIENS.push({ texte: "", jours: [] }); dessineOptions();
+        var x = el("opts").querySelectorAll("input[data-mt]");
+        if (x.length) x[x.length - 1].focus();
+      }
+    });
+  }
+
+  /* Ce que le client a compose, en clair, pour la demande et pour l'equipe. */
+  function monPlan(){
+    var out = [];
+    for (var i = 0; i < MIENS.length; i++){
+      var m = MIENS[i];
+      if (!m.texte.trim()) continue;
+      out.push("- " + m.texte.trim() +
+        (m.jours.length ? " (" + m.jours.map(puce).join(", ") + ")" : ""));
+    }
+    return out;
   }
 
   /* ---------- la monnaie ---------- */
@@ -194,18 +371,27 @@
     return SEM[d.getDay()] + " " + d.getDate() + " " + MOIS[d.getMonth()].slice(0, 3);
   }
 
-  /* Comment une prestation se multiplie, en clair. */
+  /* Comment une prestation se multiplie, en clair. Le nombre de jours est
+     celui que le client a retenu, pas la duree du sejour : annoncer vingt et
+     une nuits pour trois diners serait un mensonge, meme avec le bon total. */
   function calculDe(l, v){
-    var p = v.personnes, n = v.nuits, q = l.quantite || 1;
+    var p = v.personnes, q = l.quantite || 1;
+    var nj = l.joursRetenus || v.nuits;
     var bout = [];
-    if (q > 1) bout.push(q + " \u00d7");
-    if (l.unite === 1) bout.push(p + " guests \u00d7 " + n + " nights");
-    else if (l.unite === 2) bout.push(p + " guests");
-    else if (l.unite === 3) return (q > 1 ? q + " \u00d7 " : "") +
+    if (l.unite === 3) return (q > 1 ? q + " \u00d7 " : "") +
       "once for the stay, " + enMonnaie(l.prix);
-    else bout.push(n + " days");
+    if (q > 1) bout.push(q + " \u00d7");
+    if (l.unite === 2) bout.push(p + " guests");
+    else if (l.unite === 1) bout.push(p + " guests \u00d7 " + nj + " nights");
+    else bout.push(nj + " days");
     bout.push("\u00d7 " + enMonnaie(l.prix));
     return bout.join(" ");
+  }
+
+  /* Les jours retenus, quand ce n'est pas tout le sejour. */
+  function joursDe(l){
+    if (!l.jours || !l.jours.length) return "";
+    return '<span class="sai">' + l.jours.map(puce).join(", ") + "</span>";
   }
 
   function detail(v){
@@ -238,8 +424,10 @@
         "</tr></thead><tbody>");
       for (var k = 0; k < v.lignes.length; k++){
         var l = v.lignes[k];
+        var jj = joursDe(l);
         h.push("<tr><td>" + E(l.nom) + "</td><td>" +
-          '<span class="sai">' + calculDe(l, v) + "</span></td><td>" +
+          '<span class="sai">' + calculDe(l, v) + "</span>" +
+          (jj ? "<br>" + jj : "") + "</td><td>" +
           enMonnaie(l.total) + "</td></tr>");
       }
       h.push('</tbody><tfoot><tr><td colspan="2">What you added</td><td>' +
@@ -315,6 +503,10 @@
       pays: el("q-pays").value.trim(),
       message: ("Event type: " + el("q-type").value + "\n\n" + el("q-msg").value).trim()
     };
+    var plan = monPlan();
+    if (plan.length)
+      corps.message += "\n\nTheir own plan for the week:\n" + plan.join("\n");
+
     if (!corps.nom || !corps.courriel){
       dit.className = "dit non"; dit.textContent = "We need a name and an email to answer you."; return;
     }
@@ -355,10 +547,12 @@
       curseur.setMonth(curseur.getMonth() + 1); dessineMois();
     });
     ["a","d","p"].forEach(function(i){
-      el(i).addEventListener("change", function(){ dessineMois(); calcule(); });
+      el(i).addEventListener("change", function(){
+        tailleLesJours(); dessineMois(); dessineOptions(); calcule();
+      });
     });
     el("dev").addEventListener("change", function(){ if (devis) montre(devis); });
-    el("opts").addEventListener("change", calcule);
+    brancheOptions();
     el("q-go").addEventListener("click", envoie);
   }
 

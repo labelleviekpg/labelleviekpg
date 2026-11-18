@@ -397,13 +397,55 @@ body[data-visionneuse=oui] .barre{opacity:0;pointer-events:none}
 .champs{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));
   margin-top:30px}
 .opts{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));
-  margin-top:26px}
-.opt{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--trait);
-  padding:13px 15px;cursor:pointer;background:#fff;transition:border-color .2s}
+  margin-top:26px;align-items:start}
+.opt{border:1px solid var(--trait);padding:13px 15px;background:#fff;
+  transition:border-color .2s}
 .opt:hover{border-color:var(--accent)}
-.opt input{margin-top:3px;accent-color:var(--accent);width:16px;height:16px;flex:none}
+.opt.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px rgba(175,118,0,.18)}
+.opt>label{display:flex;gap:12px;align-items:flex-start;cursor:pointer}
+.opt input[type=checkbox]{margin-top:3px;accent-color:var(--accent);
+  width:16px;height:16px;flex:none}
 .opt b{display:block;font-weight:500;font-size:14.5px;color:var(--primary)}
 .opt i{display:block;font-style:normal;font-size:12.5px;color:var(--secondary);margin-top:3px}
+
+/* le reglage qui apparait sous une prestation cochee */
+.reglage{margin:12px 0 0 28px;padding-top:11px;border-top:1px solid var(--trait);
+  display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.reglage .resume{font-size:13px;color:var(--primary)}
+.reglage .change,.reglage .raccourcis button,.ajoute{
+  background:none;border:0;color:var(--accent);cursor:pointer;padding:0;
+  font:500 11.5px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;
+  border-bottom:1px solid currentColor}
+.reglage .change:hover,.ajoute:hover{color:var(--primary)}
+.reglage .raccourcis{display:flex;gap:14px;margin-left:auto}
+.reglage .pt{font:500 11px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--secondary);margin:0}
+.reglage .nb{width:74px;padding:7px 9px;border:1px solid var(--trait);background:#fff;
+  font:400 14px/1 var(--sans);color:var(--text)}
+.reglage .nb:focus{outline:0;border-color:var(--accent)}
+.reglage .aide{margin:0;font-size:12.5px}
+
+/* les jours, en pastilles */
+.puces{display:flex;flex-wrap:wrap;gap:5px;width:100%}
+.puce{border:1px solid var(--trait);background:#fff;color:var(--secondary);
+  padding:5px 8px;font:400 11.5px/1 var(--sans);cursor:pointer;white-space:nowrap;
+  transition:background .15s,color .15s,border-color .15s}
+.puce:hover{border-color:var(--accent)}
+.puce.on{background:var(--accent);border-color:var(--accent);color:var(--cream)}
+
+/* les lignes que le client ecrit lui-meme */
+.opt.mien{grid-column:1/-1;background:var(--cream2)}
+.opt.mien .tt{font-weight:500;font-size:14.5px;color:var(--primary)}
+.opt.mien>.aide{margin:5px 0 0;display:block}
+.ligne-mien{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px;
+  padding-top:12px;border-top:1px solid var(--trait)}
+.ligne-mien .txt{flex:1 1 220px;padding:8px 11px;border:1px solid var(--trait);
+  background:#fff;font:400 14px/1.4 var(--sans);color:var(--text)}
+.ligne-mien .txt:focus{outline:0;border-color:var(--accent)}
+.ligne-mien .ote{background:none;border:1px solid var(--trait);color:var(--secondary);
+  width:32px;height:32px;cursor:pointer;font-size:17px;line-height:1;flex:none}
+.ligne-mien .ote:hover{border-color:#9B2C1E;color:#9B2C1E}
+.ajoute{margin-top:14px}
 
 .somme{background:#fff;border:1px solid var(--trait);padding:clamp(22px,3vw,32px);margin-top:34px}
 .somme .chiffre{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;

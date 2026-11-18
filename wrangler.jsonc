@@ -8,7 +8,10 @@
     "directory": "./public",
     "binding": "ASSETS",
     "html_handling": "drop-trailing-slash",
-    "not_found_handling": "404-page"
+    "not_found_handling": "404-page",
+    // Sans ceci, Cloudflare sert les fichiers statiques sans jamais appeler le
+    // code : ni la balise canonical ni les en-tetes de cache ne passaient.
+    "run_worker_first": true
   },
   "d1_databases": [
     { "binding": "DB", "database_name": "labelleviekpg", "database_id": "53700590-1e9e-4797-9e2c-51c0d82314f6" }
