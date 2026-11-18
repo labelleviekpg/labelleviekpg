@@ -86,3 +86,15 @@ de la poser sur trois semaines.
 Le tableau est en `table-layout:fixed` avec une colonne de libelle fixee : sans
 cela la derniere journee sortait du cadre. Sur telephone il defile dans son
 cadre, jamais la page.
+
+## Les noms de classe
+
+`.pl` est le conteneur de chaque page. Avant d'inventer un nom de classe,
+verifier qu'il n'existe pas deja dans `lbv.css`. Une case du planning avait ete
+nommee `.pl` et sa regle `height:34px` a aplati tous les conteneurs du site,
+sur toutes les pages, sans la moindre erreur de console. Les classes propres a
+un bloc portent un prefixe clair : `jcase`, `sem-tete`, `ligne-mien`.
+
+Le controle de geometrie fait partie des verifications obligatoires : une
+section dont le contenu deborde se dessine par-dessus la suivante, et aucun
+test de liens, de metadonnees ou de console ne le voit.

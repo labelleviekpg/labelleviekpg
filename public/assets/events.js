@@ -439,7 +439,7 @@
         for (var b = 0; b < rs[r].jours.length; b++) pris[rs[r].jours[b]] = true;
         h.push("<tr><th>" + E(rs[r].nom) + "</th>" + sem[w].map(function(j){
           var on = !!pris[j];
-          return '<td><button type="button" class="pl' + (on ? " on" : "") +
+          return '<td><button type="button" class="jcase' + (on ? " on" : "") +
             '" data-pl="' + E(rs[r].cle) + "|" + j + '" aria-pressed="' +
             (on ? "true" : "false") + '" aria-label="' + E(rs[r].nom) + ", " +
             puce(j) + '">' + (on ? "\u2713" : "") + "</button></td>";

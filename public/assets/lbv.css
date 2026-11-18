@@ -520,15 +520,15 @@ body[data-visionneuse=oui] .barre{opacity:0;pointer-events:none}
   padding:9px 14px;position:sticky;left:0;background:#fff;
   box-shadow:1px 0 0 rgba(175,118,0,.12)}
 .sem tbody td{text-align:center;padding:4px}
-.pl{width:100%;min-width:40px;height:34px;border:1px solid var(--trait);background:#fff;
+.jcase{width:100%;min-width:40px;height:34px;border:1px solid var(--trait);background:#fff;
   color:var(--cream);cursor:pointer;font-size:14px;line-height:1;
   transition:background .14s,border-color .14s}
-.pl:hover{border-color:var(--accent)}
-.pl.on{background:var(--accent);border-color:var(--accent)}
+.jcase:hover{border-color:var(--accent)}
+.jcase.on{background:var(--accent);border-color:var(--accent)}
 .sem tbody tr:last-child th,.sem tbody tr:last-child td{border-bottom:0}
 
 @media (max-width:620px){
   .sem tbody th{font-size:12.5px;padding:8px 10px;max-width:130px}
-  .pl{min-width:34px;height:30px}
+  .jcase{min-width:34px;height:30px}
   .copie{margin-left:0;width:100%;text-align:left;margin-top:4px}
 }
