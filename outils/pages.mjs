@@ -58,6 +58,11 @@ const T = {
 const ic = (k, c = "") => `<svg viewBox="0 0 24 24" aria-hidden="true"${c ? ` class="${c}"` : ""}>${T[k]}</svg>`;
 
 /* ---------- entete, pied, bandeau ---------- */
+
+/* La console vit sur /admin et ne figure plus dans le menu. Pour la remettre
+   le temps d'une mise au point, il suffit de rajouter { "url": "/admin",
+   "texte": "Admin" } a la fin de nav dans data/site.json : le lien reprend sa
+   mise en forme discrete et reste hors du pied de page et du sitemap. */
 function barre(actif){
   const liens = S.nav.map(l =>
     `<li><a href="${l.url}"${l.url === actif ? ' aria-current="page"' : ""}` +

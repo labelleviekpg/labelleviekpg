@@ -127,7 +127,12 @@ jusqu'au moteur, qui controle comme il l'a toujours fait. Il n'ouvre donc aucune
 porte, et la liste des chemins est fermee : aucun chemin construit depuis l'URL
 du visiteur.
 
-**Le lien Admin est visible dans le menu le temps de la mise au point.** Il porte
-la classe `coulisses` pour qu'on ne l'oublie pas en place, il est absent du plan
-du site et du pied de page, et la console repond `noindex, nofollow`. A retirer
-du menu avant l'ouverture au public.
+**Le lien Admin ne figure plus dans le menu.** Il y est reste le temps de la
+mise au point, il en est sorti avant l'ouverture au public. La console se
+rejoint en direct par `/admin`, elle reste absente du plan du site et du pied
+de page et repond `noindex, nofollow`.
+
+Pour la remettre dans le menu le temps d'une mise au point, rajouter
+`{ "url": "/admin", "texte": "Admin" }` a la fin de `nav` dans
+`data/site.json`. La classe `coulisses` lui redonne sa mise en forme discrete,
+elle est toujours en place dans `barre()`.
