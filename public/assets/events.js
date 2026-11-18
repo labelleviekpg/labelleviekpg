@@ -162,7 +162,7 @@
     var tous = !choisis;
     var cpt = tous ? n.length : choisis.length;
     var h = [(indicatif
-        ? '<span class="aide">' + (tous ? "No day in particular" : cpt + " day" +
+        ? '<span class="aide">' + (tous || !cpt ? "No day set yet" : cpt + " day" +
             (cpt > 1 ? "s" : "") + " marked") + "</span>"
         : '<span class="resume">' +
             (tous ? "Every day of the stay" : cpt + " of " + n.length + " days") +
@@ -200,14 +200,19 @@
         if (o.choix === "jours")
           h.push('<div class="reglage">' + stripJours(o.id, pris.jours, OUVERT === o.id) + "</div>");
         else if (o.choix === "sessions" || o.choix === "sessions-jours"){
+          /* Quand des jours sont marques, c'est eux qui font le compte : on
+             n'en laisse pas deux a tenir en accord. */
+          var cale = o.choix === "sessions-jours" && pris.jours && pris.jours.length;
           h.push('<div class="reglage"><label class="pt" for="q-' + E(o.id) + '">How many</label>' +
             '<input class="nb" id="q-' + E(o.id) + '" type="number" min="1" max="60" value="' +
-            (pris.q || 1) + '" data-q="' + E(o.id) + '"><span class="aide">' +
-            "each guest, " + sou(o.prix) + " THB a time</span></div>");
+            (cale ? pris.jours.length : (pris.q || 1)) + '" data-q="' + E(o.id) + '"' +
+            (cale ? " readonly" : "") + '><span class="aide">' +
+            (cale ? "one a day, from the days you marked"
+                  : "each guest, " + sou(o.prix) + " THB a time") + "</span></div>");
           /* Les jours disent quand, pas combien : le prix suit le nombre de
              seances, les dates servent a l'equipe. */
           if (o.choix === "sessions-jours")
-            h.push('<div class="reglage"><span class="resume">Which days suit you</span>' +
+            h.push('<div class="reglage"><span class="resume">Which days</span>' +
               stripJours(o.id, pris.jours, OUVERT === o.id, true) + "</div>");
         }
       }
@@ -401,11 +406,12 @@
       if ((v = b.getAttribute("data-jour")) !== null){
         var p = v.split("|"), id = p[0], j = p[1];
         if (!PRIS[id]) return;
-        var liste = PRIS[id].jours ? PRIS[id].jours.slice() : nuitsDuSejour();
-        var k = liste.indexOf(j);
-        if (k >= 0) liste.splice(k, 1); else liste.push(j);
-        liste.sort();
-        PRIS[id].jours = liste.length === nuitsDuSejour().length ? null : liste;
+        /* Une seule regle pour la carte et pour la grille, sinon les deux
+           divergent des qu'une prestation se compte a la seance. */
+        var deja = PRIS[id].jours
+          ? PRIS[id].jours.indexOf(j) >= 0
+          : !parSeance(id);
+        poseJour("o:" + id, j, !deja);
         redessine(true); return;
       }
       if ((v = b.getAttribute("data-mj")) !== null){
@@ -487,9 +493,16 @@
     var out = [];
     for (var i = 0; i < OPTIONS.length; i++){
       var o = OPTIONS[i];
-      if (o.choix !== "jours" || !PRIS[o.id]) continue;
-      out.push({ cle: "o:" + o.id, nom: o.nom,
-                 jours: PRIS[o.id].jours || nuitsDuSejour().slice() });
+      if (!PRIS[o.id]) continue;
+      if (o.choix === "jours"){
+        out.push({ cle: "o:" + o.id, nom: o.nom,
+                   jours: PRIS[o.id].jours || nuitsDuSejour().slice() });
+      } else if (o.choix === "sessions-jours"){
+        /* Un massage pose un jour precis se voit dans la semaine comme le
+           reste. Sans jour marque, la ligne est vide : la prestation existe,
+           elle n'a pas encore sa place. */
+        out.push({ cle: "o:" + o.id, nom: o.nom, jours: PRIS[o.id].jours || [] });
+      }
     }
     for (var k = 0; k < MIENS.length; k++){
       if (!MIENS[k].texte.trim()) continue;
@@ -498,17 +511,32 @@
     return out;
   }
 
+  function parSeance(id){
+    for (var i = 0; i < OPTIONS.length; i++)
+      if (OPTIONS[i].id === id) return OPTIONS[i].choix === "sessions-jours";
+    return false;
+  }
+
   function poseJour(cle, j, on){
     var p = cle.split(":");
     if (p[0] === "o"){
       var id = p[1];
       if (!PRIS[id]) return;
-      var liste = PRIS[id].jours ? PRIS[id].jours.slice() : nuitsDuSejour();
+      var seance = parSeance(id);
+      var liste = PRIS[id].jours ? PRIS[id].jours.slice()
+                : seance ? [] : nuitsDuSejour();
       var k = liste.indexOf(j);
       if (on && k < 0) liste.push(j);
       if (!on && k >= 0) liste.splice(k, 1);
       liste.sort();
-      PRIS[id].jours = liste.length === nuitsDuSejour().length ? null : liste;
+      if (seance){
+        /* Un jour marque vaut une seance : le compte suit la semaine, le
+           client n'a pas a tenir deux chiffres en accord. */
+        PRIS[id].jours = liste;
+        if (liste.length) PRIS[id].q = liste.length;
+      } else {
+        PRIS[id].jours = liste.length === nuitsDuSejour().length ? null : liste;
+      }
     } else {
       var m = MIENS[+p[1]];
       if (!m) return;
@@ -548,9 +576,11 @@
     for (var i = 0; i < OPTIONS.length; i++){
       var o = OPTIONS[i];
       if (o.choix === "jours" || !PRIS[o.id]) continue;
-      out.push(o.choix === "sessions"
-        ? (PRIS[o.id].q || 1) + " \u00d7 " + o.nom
-        : o.nom);
+      if (o.choix === "sessions-jours"){
+        var j = PRIS[o.id].jours;
+        if (j && j.length) continue;          /* elle est dans la grille */
+        out.push((PRIS[o.id].q || 1) + " \u00d7 " + o.nom + ", no day set yet");
+      } else out.push(o.nom);
     }
     return out;
   }

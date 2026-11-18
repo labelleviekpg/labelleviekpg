@@ -79,6 +79,11 @@ par jour, decoupee en semaines. Cocher une case ecrit dans `PRIS[id].jours` ou
 dans `MIENS[i].jours`, et le devis se refait. Il n'y a pas de second etat a
 tenir a jour, donc rien qui puisse diverger.
 
+Les prestations a la seance y figurent aussi : un massage pose un mardi se voit
+dans la semaine comme un diner. Marquer un jour vaut une seance, et le compteur
+de la carte suit, en lecture seule, pour qu'il n'y ait jamais deux chiffres a
+tenir en accord. Une prestation sans jour marque reste listee sous la grille.
+
 `recopie(n)` reporte le motif de la semaine n sur toutes les suivantes, rang
 par rang dans la semaine. C'est ce qui permet de composer une semaine type et
 de la poser sur trois semaines.

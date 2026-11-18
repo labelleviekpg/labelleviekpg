@@ -547,3 +547,4 @@ body[data-visionneuse=oui] .barre{opacity:0;pointer-events:none}
   color:var(--secondary);cursor:pointer}
 .ligne-mien .pay input{accent-color:var(--accent);width:15px;height:15px}
 .ligne-mien select:focus,.ligne-mien .nb:focus{outline:0;border-color:var(--accent)}
+.reglage .nb[readonly]{background:var(--cream2);color:var(--secondary);cursor:default}
