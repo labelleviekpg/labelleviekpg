@@ -98,6 +98,10 @@
   if (!el("calc")) return;
   titrePrix();
 
+  /* Combien ils sont. Une seule lecture du champ, pour que le calcul du
+     serveur et ce qu'on ecrit a l'ecran ne divergent jamais. */
+  function monde(){ return Math.max(1, parseInt(el("p").value, 10) || 1); }
+
   /* ---------- etat ---------- */
   var REGLES = null, OPTIONS = [], PRISES = [], SAISONS = [];
   var TAUX = { THB: 1 }, MONNAIES = [{ code:"THB", nom:"Thai baht", signe:"฿" }];
@@ -259,7 +263,9 @@
       h.push('<div class="tete"><input type="checkbox" id="o-' + E(o.id) +
         '" data-o="' + E(o.id) + '"' + (pris ? " checked" : "") +
         '><label for="o-' + E(o.id) + '"><b>' + E(o.nom) + "</b><i>" +
-        sou(o.prix) + " THB " + (UNITE[o.unite] || "") + "</i></label></div>");
+        sou(o.prix) + " THB " +
+        (o.gens ? "per person, per session" : (UNITE[o.unite] || "")) +
+        "</i></label></div>");
       if (pris){
         if (o.choix === "jours")
           h.push('<div class="reglage">' + stripJours(o.id, pris.jours, OUVERT === o.id) + "</div>");
@@ -267,12 +273,32 @@
           /* Quand des jours sont marques, c'est eux qui font le compte : on
              n'en laisse pas deux a tenir en accord. */
           var cale = o.choix === "sessions-jours" && pris.jours && pris.jours.length;
-          h.push('<div class="reglage"><label class="pt" for="q-' + E(o.id) + '">How many</label>' +
+          var fois = cale ? pris.jours.length : (pris.q || 1);
+          h.push('<div class="reglage"><label class="pt" for="q-' + E(o.id) + '">' +
+            (o.gens ? "How many sessions" : "How many") + "</label>" +
             '<input class="nb" id="q-' + E(o.id) + '" type="number" min="1" max="60" value="' +
-            (cale ? pris.jours.length : (pris.q || 1)) + '" data-q="' + E(o.id) + '"' +
+            fois + '" data-q="' + E(o.id) + '"' +
             (cale ? " readonly" : "") + '><span class="aide">' +
             (cale ? "one a day, from the days you marked"
+                  : o.gens ? sou(o.prix) + " THB a person, each time"
                   : "each guest, " + sou(o.prix) + " THB a time") + "</span></div>");
+          /* Douze personnes ne passent pas sous douze paires de mains en meme
+             temps. On demande combien a chaque fois, et on dit tout de suite
+             combien de personnes le compte couvre en tout. */
+          if (o.gens){
+            var tous = monde();
+            var par = Math.max(1, Math.min(tous, parseInt(pris.gens, 10) || tous));
+            var couvre = fois * par;
+            h.push('<div class="reglage"><label class="pt" for="g-' + E(o.id) + '">' +
+              "People each time</label>" +
+              '<input class="nb" id="g-' + E(o.id) + '" type="number" min="1" max="' + tous +
+              '" value="' + par + '" data-g="' + E(o.id) + '"><span class="aide">' +
+              fois + (fois > 1 ? " sessions" : " session") + " of " + par +
+              ", " + couvre + " in all" +
+              (couvre === tous ? ", your whole group"
+                : couvre < tous ? ", " + (tous - couvre) + " of your group left out"
+                : ", more than your group") + "</span></div>");
+          }
           /* Les jours disent quand, pas combien : le prix suit le nombre de
              seances, les dates servent a l'equipe. */
           if (o.choix === "sessions-jours")
@@ -372,6 +398,7 @@
       if (!PRIS[id]) continue;
       q[id] = { q: PRIS[id].q || 1 };
       if (PRIS[id].jours) q[id].jours = PRIS[id].jours;
+      if (PRIS[id].gens) q[id].gens = PRIS[id].gens;
     }
     return q;
   }
@@ -410,7 +437,13 @@
       if (t.matches("input[data-q]")){
         var k = t.getAttribute("data-q");
         if (PRIS[k]) PRIS[k].q = Math.max(1, parseInt(t.value, 10) || 1);
-        calcule(); return;
+        redessine(true); return;
+      }
+      if (t.matches("input[data-g]")){
+        var kg = t.getAttribute("data-g");
+        if (PRIS[kg])
+          PRIS[kg].gens = Math.max(1, Math.min(monde(), parseInt(t.value, 10) || 1));
+        redessine(true); return;
       }
       if (t.matches("input[data-mt]")){
         MIENS[+t.getAttribute("data-mt")].texte = t.value; return;
@@ -750,7 +783,7 @@
   /* ---------- le devis ---------- */
   function calcule(){
     var a = el("a").value, d = el("d").value;
-    var p = Math.max(1, parseInt(el("p").value, 10) || 1);
+    var p = monde();
     if (!a || !d || d <= a){ el("somme").innerHTML = attente(); return; }
 
     var mien = quand = Date.now();
@@ -794,7 +827,10 @@
     if (l.unite === 3) return (q > 1 ? q + " \u00d7 " : "") +
       "once for the stay, " + enMonnaie(l.prix);
     if (q > 1) bout.push(q + " \u00d7");
-    if (l.unite === 2) bout.push(p + " guests");
+    /* Une prestation qui ne prend pas tout le monde a la fois le dit : sinon
+       le client lit "12 guests" au-dessus d'un total calcule sur quatre. */
+    if (l.unite === 2 && l.gens) bout.push(l.gens + (l.gens > 1 ? " guests" : " guest"));
+    else if (l.unite === 2) bout.push(p + " guests");
     else if (l.unite === 1) bout.push(p + " guests \u00d7 " + nj + " nights");
     else bout.push(nj + " days");
     bout.push("\u00d7 " + enMonnaie(l.prix));
@@ -924,7 +960,7 @@
     }
     var corps = {
       arrivee: a, depart: d,
-      personnes: Math.max(1, parseInt(el("p").value, 10) || 1),
+      personnes: monde(),
       options: quantites(),
       nom: el("q-nom").value.trim(),
       organisation: el("q-org").value.trim(),
