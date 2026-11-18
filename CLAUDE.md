@@ -70,3 +70,19 @@ ne s'appliquaient pas.
 Le Worker recolle `canonical`, `og:url` et `og:image` sur l'hote reellement
 servi. Tant que le domaine n'est pas branche, une balise qui pointe sur
 www.labelleviekpg.com envoie les moteurs vers l'ancien site WordPress.
+
+## Le planning
+
+`#plan` est une autre vue des memes donnees que les selecteurs de jours : une
+grille, une ligne par prestation choisie au jour et par ligne libre, une colonne
+par jour, decoupee en semaines. Cocher une case ecrit dans `PRIS[id].jours` ou
+dans `MIENS[i].jours`, et le devis se refait. Il n'y a pas de second etat a
+tenir a jour, donc rien qui puisse diverger.
+
+`recopie(n)` reporte le motif de la semaine n sur toutes les suivantes, rang
+par rang dans la semaine. C'est ce qui permet de composer une semaine type et
+de la poser sur trois semaines.
+
+Le tableau est en `table-layout:fixed` avec une colonne de libelle fixee : sans
+cela la derniere journee sortait du cadre. Sur telephone il defile dans son
+cadre, jamais la page.

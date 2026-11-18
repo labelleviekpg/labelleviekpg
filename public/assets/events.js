@@ -200,6 +200,7 @@
       h.push("</div>");
       return h.join("");
     }).join("") + mesLignes();
+    dessinePlan();
   }
 
   /* ---------- les lignes du client ----------
@@ -312,6 +313,163 @@
         (m.jours.length ? " (" + m.jours.map(puce).join(", ") + ")" : ""));
     }
     return out;
+  }
+
+  /* ---------- le planning de la semaine ----------
+     Les memes donnees que les selecteurs de jours, vues autrement : une
+     grille jour par jour, ou le client voit tout son sejour d'un coup. Il
+     compose une semaine et la recopie sur les suivantes. */
+
+  function semaines(){
+    var n = nuitsDuSejour(), out = [];
+    for (var i = 0; i < n.length; i += 7) out.push(n.slice(i, i + 7));
+    return out;
+  }
+
+  /* Ce qui se pose sur un jour : les prestations choisies au jour, et les
+     lignes que le client a ecrites. Le reste, les sessions et les forfaits,
+     n'a pas de date et vit a cote. */
+  function rangs(){
+    var out = [];
+    for (var i = 0; i < OPTIONS.length; i++){
+      var o = OPTIONS[i];
+      if (o.choix !== "jours" || !PRIS[o.id]) continue;
+      out.push({ cle: "o:" + o.id, nom: o.nom,
+                 jours: PRIS[o.id].jours || nuitsDuSejour().slice() });
+    }
+    for (var k = 0; k < MIENS.length; k++){
+      if (!MIENS[k].texte.trim()) continue;
+      out.push({ cle: "m:" + k, nom: MIENS[k].texte.trim(), jours: MIENS[k].jours });
+    }
+    return out;
+  }
+
+  function poseJour(cle, j, on){
+    var p = cle.split(":");
+    if (p[0] === "o"){
+      var id = p[1];
+      if (!PRIS[id]) return;
+      var liste = PRIS[id].jours ? PRIS[id].jours.slice() : nuitsDuSejour();
+      var k = liste.indexOf(j);
+      if (on && k < 0) liste.push(j);
+      if (!on && k >= 0) liste.splice(k, 1);
+      liste.sort();
+      PRIS[id].jours = liste.length === nuitsDuSejour().length ? null : liste;
+    } else {
+      var m = MIENS[+p[1]];
+      if (!m) return;
+      var q = m.jours.indexOf(j);
+      if (on && q < 0) m.jours.push(j);
+      if (!on && q >= 0) m.jours.splice(q, 1);
+      m.jours.sort();
+    }
+  }
+
+  /* Recopier une semaine sur toutes les suivantes : chaque jour retenu se
+     reporte sept jours plus loin, autant de fois qu'il reste de semaines. */
+  function recopie(iSem){
+    var sem = semaines(), n = nuitsDuSejour();
+    if (iSem >= sem.length - 1) return;
+    var source = sem[iSem], dedans = {};
+    for (var a = 0; a < n.length; a++) dedans[n[a]] = true;
+
+    var rs = rangs();
+    for (var r = 0; r < rs.length; r++){
+      var pris = {};
+      for (var b = 0; b < rs[r].jours.length; b++) pris[rs[r].jours[b]] = true;
+      for (var w = iSem + 1; w < sem.length; w++){
+        for (var d = 0; d < sem[w].length; d++){
+          var rang = d;                       /* meme rang dans la semaine */
+          var modele = source[rang];
+          if (modele === undefined) continue;
+          poseJour(rs[r].cle, sem[w][d], !!pris[modele]);
+        }
+      }
+    }
+    dessineOptions(); dessinePlan(); calcule();
+  }
+
+  function sansDate(){
+    var out = [];
+    for (var i = 0; i < OPTIONS.length; i++){
+      var o = OPTIONS[i];
+      if (o.choix === "jours" || !PRIS[o.id]) continue;
+      out.push(o.choix === "sessions"
+        ? (PRIS[o.id].q || 1) + " \u00d7 " + o.nom
+        : o.nom);
+    }
+    return out;
+  }
+
+  function dessinePlan(){
+    var c = el("plan");
+    if (!c) return;
+    var sem = semaines(), rs = rangs();
+
+    if (!sem.length){
+      c.innerHTML = '<p class="aide">Pick your dates and the week lays itself out here.</p>';
+      return;
+    }
+    if (!rs.length){
+      c.innerHTML = '<p class="aide">Tick what you want above, or write your own lines, ' +
+        "and your whole stay appears here, day by day.</p>";
+      return;
+    }
+
+    var h = [];
+    for (var w = 0; w < sem.length; w++){
+      h.push('<div class="sem">');
+      h.push('<div class="sem-tete"><b>' +
+        (sem.length > 1 ? "Week " + (w + 1) : "Your stay") + "</b>" +
+        '<span class="aide">' + jourCourt(sem[w][0]) + " to " +
+        jourCourt(sem[w][sem[w].length - 1]) + "</span>" +
+        (w < sem.length - 1
+          ? '<button type="button" class="copie" data-copie="' + w +
+            '">Copy to the following weeks</button>' : "") + "</div>");
+
+      h.push('<div class="tableau"><table>' +
+        '<colgroup><col class="lib">' + sem[w].map(function(){ return "<col>"; }).join("") +
+        "</colgroup><thead><tr><th></th>" +
+        sem[w].map(function(j){
+          return "<th>" + puce(j) + "</th>";
+        }).join("") + "</tr></thead><tbody>");
+
+      for (var r = 0; r < rs.length; r++){
+        var pris = {};
+        for (var b = 0; b < rs[r].jours.length; b++) pris[rs[r].jours[b]] = true;
+        h.push("<tr><th>" + E(rs[r].nom) + "</th>" + sem[w].map(function(j){
+          var on = !!pris[j];
+          return '<td><button type="button" class="pl' + (on ? " on" : "") +
+            '" data-pl="' + E(rs[r].cle) + "|" + j + '" aria-pressed="' +
+            (on ? "true" : "false") + '" aria-label="' + E(rs[r].nom) + ", " +
+            puce(j) + '">' + (on ? "\u2713" : "") + "</button></td>";
+        }).join("") + "</tr>");
+      }
+      h.push("</tbody></table></div></div>");
+    }
+
+    var hors = sansDate();
+    if (hors.length)
+      h.push('<p class="aide">Across the whole stay, with no fixed day: ' +
+        E(hors.join(", ")) + ".</p>");
+
+    c.innerHTML = h.join("");
+  }
+
+  function branchePlan(){
+    var c = el("plan");
+    if (!c) return;
+    c.addEventListener("click", function(e){
+      var b = e.target.closest("button");
+      if (!b) return;
+      var v;
+      if ((v = b.getAttribute("data-pl")) !== null){
+        var p = v.split("|");
+        poseJour(p[0], p[1], b.getAttribute("aria-pressed") !== "true");
+        dessineOptions(); dessinePlan(); calcule(); return;
+      }
+      if ((v = b.getAttribute("data-copie")) !== null) recopie(+v);
+    });
   }
 
   /* ---------- la monnaie ---------- */
@@ -553,6 +711,7 @@
     });
     el("dev").addEventListener("change", function(){ if (devis) montre(devis); });
     brancheOptions();
+    branchePlan();
     el("q-go").addEventListener("click", envoie);
   }
 

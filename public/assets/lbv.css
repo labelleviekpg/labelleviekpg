@@ -46,6 +46,9 @@ p:last-child{margin-bottom:0}
 .filet.c{margin-inline:auto}
 
 .pl{width:100%;max-width:1200px;margin:0 auto;padding-inline:var(--pl)}
+/* L'entete est fixe : sans cette marge, un lien d'ancre depose sa cible
+   dessous et le titre disparait sous la barre. */
+section[id],[id]{scroll-margin-top:92px}
 .pl.serre{max-width:860px}
 section{padding-block:var(--air)}
 .centre{text-align:center}
@@ -485,3 +488,47 @@ body[data-visionneuse=oui] .barre{opacity:0;pointer-events:none}
   border-bottom:1.4px solid currentColor;transform:translateY(-2px) rotate(45deg);
   transition:transform .22s}
 .repli[open]>summary::after{transform:translateY(1px) rotate(-135deg)}
+
+/* ===================== le planning de la semaine ===================== */
+.plan-tete{margin-top:clamp(40px,5vw,64px);padding-top:clamp(28px,3vw,40px);
+  border-top:1px solid var(--trait)}
+.plan-tete h3{margin-top:6px}
+.plan-tete .aide{max-width:68ch}
+#plan{margin-top:24px}
+
+.sem{margin-bottom:26px;border:1px solid var(--trait);background:#fff}
+.sem-tete{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 16px;
+  padding:14px 18px;border-bottom:1px solid var(--trait);background:var(--cream2)}
+.sem-tete b{font-family:var(--serif);font-size:19px;font-weight:500;color:var(--primary)}
+.sem-tete .aide{margin:0}
+.copie{margin-left:auto;background:none;border:0;color:var(--accent);cursor:pointer;
+  font:500 11px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;
+  border-bottom:1px solid currentColor;padding:0}
+.copie:hover{color:var(--primary)}
+
+.tableau{overflow-x:auto;-webkit-overflow-scrolling:touch}
+/* table-layout fixe : les sept jours se partagent la place restante et la
+   derniere colonne ne sort plus du cadre. */
+.sem table{width:100%;border-collapse:collapse;min-width:520px;table-layout:fixed}
+.sem col.lib{width:210px}
+@media (max-width:1000px){.sem col.lib{width:170px}}
+@media (max-width:620px){.sem col.lib{width:116px}}
+.sem th,.sem td{border-bottom:1px solid rgba(175,118,0,.12);padding:0}
+.sem thead th{font:500 10.5px/1.3 var(--sans);letter-spacing:.09em;text-transform:uppercase;
+  color:var(--secondary);padding:11px 4px;text-align:center;white-space:nowrap}
+.sem tbody th{text-align:left;font:400 13.5px/1.35 var(--sans);color:var(--primary);
+  padding:9px 14px;position:sticky;left:0;background:#fff;
+  box-shadow:1px 0 0 rgba(175,118,0,.12)}
+.sem tbody td{text-align:center;padding:4px}
+.pl{width:100%;min-width:40px;height:34px;border:1px solid var(--trait);background:#fff;
+  color:var(--cream);cursor:pointer;font-size:14px;line-height:1;
+  transition:background .14s,border-color .14s}
+.pl:hover{border-color:var(--accent)}
+.pl.on{background:var(--accent);border-color:var(--accent)}
+.sem tbody tr:last-child th,.sem tbody tr:last-child td{border-bottom:0}
+
+@media (max-width:620px){
+  .sem tbody th{font-size:12.5px;padding:8px 10px;max-width:130px}
+  .pl{min-width:34px;height:30px}
+  .copie{margin-left:0;width:100%;text-align:left;margin-top:4px}
+}
