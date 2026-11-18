@@ -11,7 +11,7 @@
     "not_found_handling": "404-page"
   },
   "d1_databases": [
-    { "binding": "DB", "database_name": "labelleviekpg", "database_id": "A_REMPLIR_VOIR_LISEZMOI" }
+    { "binding": "DB", "database_name": "labelleviekpg", "database_id": "53700590-1e9e-4797-9e2c-51c0d82314f6" }
   ],
   "vars": {
     "CONTACT_VERS": "events@labelleviekpg.com"

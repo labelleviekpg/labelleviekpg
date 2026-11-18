@@ -9,7 +9,8 @@ Pages statiques servies par un Worker Cloudflare. **Pas d'etape de build.**
 npx wrangler d1 create labelleviekpg
 ```
 
-Reporte le `database_id` rendu dans `wrangler.jsonc`, puis :
+La base est deja creee et son identifiant est dans `wrangler.jsonc`.
+Pour une nouvelle installation, reporte le `database_id` rendu, puis :
 
 ```
 npx wrangler d1 execute labelleviekpg --remote --file schema.sql
