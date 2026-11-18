@@ -136,3 +136,31 @@ Pour la remettre dans le menu le temps d'une mise au point, rajouter
 `{ "url": "/admin", "texte": "Admin" }` a la fin de `nav` dans
 `data/site.json`. La classe `coulisses` lui redonne sa mise en forme discrete,
 elle est toujours en place dans `barre()`.
+
+## Deux portes, deux maisons
+
+La porte de la page evenements n'est plus decorative. `porte-go` donne un
+inscrit, `porte-non` donne un visiteur, et l'etat tient dans `lbv-events-vu`.
+La valeur `oui`, d'avant les deux portes, compte pour un inscrit : on ne
+reprend pas les prix a quelqu'un qui les voyait hier.
+
+Le visiteur garde les dates, le calendrier des disponibilites et le choix des
+prestations. Il perd les montants, qui sortent masques par `masque()`, le
+premier chiffre puis des points. Il perd le detail nuit par nuit et le
+planificateur de semaine, remplaces par `verrou()`. Et il ne peut pas envoyer
+sa demande : `envoie()` rouvre la porte.
+
+Le titre de la section des prix suit l'etat, par `titrePrix()`. Promettre le
+prix a la baht au-dessus d'un montant masque, ce serait se contredire a
+l'ecran.
+
+**Le masque est pose a l'affichage, pas au calcul.** Le moteur renvoie les
+vrais montants et quelqu'un qui ouvre les outils du navigateur les verra.
+C'est une porte de demonstration : elle decourage le partage distrait, elle
+n'arrete personne. Le jour ou la vraie connexion arrive, c'est le serveur qui
+devra retenir les chiffres, et `pourLeClient()` dans le moteur est l'endroit
+ou ca se jouera.
+
+Une fonction nouvelle reservee aux inscrits se ferme par `verrou()`, jamais en
+masquant en CSS : ce qui n'est pas dans la page ne se lit pas dans
+l'inspecteur.

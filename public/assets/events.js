@@ -11,28 +11,92 @@
   /* ---------- la porte ----------
      Une demonstration, pas une vraie connexion : aucun mot de passe n'est
      demande, aucun compte n'est cree, rien n'est envoye nulle part. Le but
-     est de montrer a quoi ressemblera l'accueil d'un prospect. */
+     est de montrer a quoi ressemblera l'accueil d'un prospect.
+
+     Deux portes, et deux maisons derriere. Qui s'enregistre voit tout. Qui
+     passe sans s'enregistrer garde les dates, le calendrier et le choix des
+     prestations, mais les montants arrivent masques : le premier chiffre
+     seulement, assez pour situer l'ordre de grandeur, pas assez pour s'en
+     servir ou le faire circuler. */
   var PORTE = "lbv-events-vu";
+  var INSCRIT = false;
   var porte = el("porte");
+  try {
+    var vu = localStorage.getItem(PORTE);
+    /* "oui" est l'ancienne forme, d'avant les deux portes : on la traite en
+       inscrit plutot que de masquer les prix a quelqu'un qui les voyait. */
+    INSCRIT = vu === "inscrit" || vu === "oui";
+  } catch (e) {}
+
+  /* Promettre le prix a la baht au-dessus d'un montant masque, ce serait se
+     contredire a l'ecran. Le titre dit ce que le visiteur voit vraiment. */
+  function titrePrix(){
+    var t = el("prix-t"), q = el("prix-p");
+    if (!t || !q) return;
+    if (INSCRIT){
+      t.textContent = "What your stay costs, to the baht";
+      q.textContent = "No form to fill in first, no one calling you back with " +
+        "a number. The same rates we quote by email.";
+    } else {
+      t.textContent = "What your stay would cost";
+      q.textContent = "Build the stay you have in mind, night by night. " +
+        "Sign in when you want the figures in full.";
+    }
+  }
+  function rafraichit(){
+    if (!el("calc")) return;
+    titrePrix();
+    if (devis) montre(devis);
+    dessinePlan();
+  }
+  function passe(quoi){
+    INSCRIT = quoi === "inscrit";
+    if (porte){ porte.hidden = true; document.body.style.overflow = ""; }
+    try { localStorage.setItem(PORTE, quoi); } catch (e) {}
+    rafraichit();
+  }
+  function rouvre(){
+    if (!porte) return;
+    porte.hidden = false;
+    document.body.style.overflow = "hidden";
+    var b = el("porte-go"); if (b && b.focus) b.focus();
+  }
   if (porte){
-    var deja = false;
-    try { deja = localStorage.getItem(PORTE) === "oui"; } catch (e) {}
-    if (deja) porte.hidden = true;
+    if (INSCRIT || (function(){ try { return !!localStorage.getItem(PORTE); }
+                                catch (e) { return false; } })())
+      porte.hidden = true;
     else document.body.style.overflow = "hidden";
 
-    var ouvre = function(){
-      porte.hidden = true;
-      document.body.style.overflow = "";
-      try { localStorage.setItem(PORTE, "oui"); } catch (e) {}
-    };
-    el("porte-go").addEventListener("click", ouvre);
-    el("porte-non").addEventListener("click", ouvre);
+    el("porte-go").addEventListener("click", function(){ passe("inscrit"); });
+    el("porte-non").addEventListener("click", function(){ passe("visiteur"); });
     addEventListener("keydown", function(e){
-      if (!porte.hidden && e.key === "Escape") ouvre();
+      if (!porte.hidden && e.key === "Escape") passe("visiteur");
     });
+  }
+  document.addEventListener("click", function(e){
+    var b = e.target && e.target.closest ? e.target.closest("[data-entre]") : null;
+    if (!b) return;
+    e.preventDefault();
+    rouvre();
+  });
+
+  /* On garde le premier chiffre et la forme du nombre. Un prospect voit
+     qu'on parle de centaines de milliers, pas de dizaines, et il lui faut
+     s'enregistrer pour en savoir plus. */
+  function masque(t){
+    var premier = false;
+    return String(t).replace(/\d/g, function(c){
+      if (!premier){ premier = true; return c; }
+      return "\u2022";
+    });
+  }
+  function verrou(titre, phrase){
+    return '<div class="verrou"><b>' + E(titre) + "</b><p>" + E(phrase) + "</p>" +
+      '<button type="button" class="bt" data-entre>Sign in to see it</button></div>';
   }
 
   if (!el("calc")) return;
+  titrePrix();
 
   /* ---------- etat ---------- */
   var REGLES = null, OPTIONS = [], PRISES = [], SAISONS = [];
@@ -588,6 +652,12 @@
   function dessinePlan(){
     var c = el("plan");
     if (!c) return;
+    if (!INSCRIT){
+      c.innerHTML = verrou("Your week, laid out day by day",
+        "Lay out a typical week, copy it onto the weeks that follow, and see " +
+        "the whole stay take shape. It opens as soon as you sign in.");
+      return;
+    }
     var sem = semaines(), rs = rangs();
 
     if (!sem.length){
@@ -667,13 +737,14 @@
   function enMonnaie(thb){
     var c = el("dev").value || "THB", t = TAUX[c];
     var m = MONNAIES.filter(function(x){ return x.code === c; })[0];
-    if (!t || !m) return sou(thb) + " THB";
+    if (!t || !m) return INSCRIT ? sou(thb) + " THB" : masque(sou(thb) + " THB");
     var v = thb / t;
     var texte = c === "BTC" ? v.toFixed(4)
               : c === "THB" || c === "JPY" ? sou(v)   /* ni l'un ni l'autre ne compte de centimes */
               : v >= 1000 ? sou(v)
               : v.toFixed(2);
-    return m.signe + " " + texte + (c === "THB" ? "" : "");
+    var sortie = m.signe + " " + texte + (c === "THB" ? "" : "");
+    return INSCRIT ? sortie : masque(sortie);
   }
 
   /* ---------- le devis ---------- */
@@ -737,6 +808,10 @@
   }
 
   function detail(v){
+    if (!INSCRIT)
+      return verrou("The line by line detail",
+        "Every night, every season and every extra, priced one by one. " +
+        "It opens as soon as you sign in.");
     var h = ['<details class="repli"><summary>See every line, night by night</summary>'];
 
     h.push('<table class="nuits"><thead><tr>' +
@@ -809,8 +884,15 @@
       h.push('<p class="alerte">Some of those dates are already taken. ' +
         'Send the request anyway and we will propose the nearest free window.</p>');
 
-    h.push('<div class="chiffre"><span>' + v.nuits + " nights, " + v.personnes +
-      ' guests</span><b>' + enMonnaie(v.total) + "</b></div>");
+    h.push('<div class="chiffre' + (INSCRIT ? "" : " flou") + '"><span>' +
+      v.nuits + " nights, " + v.personnes + ' guests</span><b>' +
+      enMonnaie(v.total) + "</b></div>");
+    if (!INSCRIT)
+      h.push('<div class="invite"><p><b>You are looking as a visitor.</b> ' +
+        "The dates, the calendar and everything you can add are open to you. " +
+        "The prices are not, and neither is sending us your dates.</p>" +
+        '<button type="button" class="bt plein" data-entre>' +
+        "Sign in and see the real figures</button></div>");
     h.push('<table class="detail"><tbody>');
     h.push("<tr><td>The house, breakfast included</td><td>" +
       enMonnaie(v.hebergement) + "</td></tr>");
@@ -830,6 +912,12 @@
   /* ---------- la demande ---------- */
   function envoie(){
     var dit = el("q-dit");
+    if (!INSCRIT){
+      dit.className = "dit non";
+      dit.textContent = "Sign in first and we will have a name to answer to.";
+      rouvre();
+      return;
+    }
     var a = el("a").value, d = el("d").value;
     if (!a || !d || d <= a){
       dit.className = "dit non"; dit.textContent = "Please choose your dates first."; return;

@@ -616,10 +616,13 @@ ecris("events/index.html", page({
     <h2 id="porte-t">See dates and prices</h2>
     <p>Sign in once and the calendar, the calculator and our rates open up.</p>
     <button type="button" class="gg" id="porte-go">${GOOGLE_G}Continue with Google</button>
-    <button type="button" class="sinon" id="porte-non">Continue without signing in</button>
+    <button type="button" class="sinon" id="porte-non">Look around without signing in</button>
+    <p class="note"><strong>Signing in opens the prices.</strong> Look around and you keep
+    the dates, the calendar and everything you can add to a stay, with the figures
+    held back. You can sign in at any moment.</p>
     <p class="note"><strong>This is a demonstration.</strong> Nothing is asked of you and
-    nothing is created: no password, no account, no email. Either button simply opens
-    the page. The real sign in comes later.</p>
+    nothing is created: no password, no account, no email. The real sign in comes
+    later.</p>
   </div>
 </div>
 
@@ -683,9 +686,9 @@ ecris("events/index.html", page({
   <div class="pl">
     <div class="centre">
       <span class="sur">Your price</span>
-      <h2>What your stay costs, to the baht</h2>
+      <h2 id="prix-t">What your stay costs, to the baht</h2>
       <hr class="filet c">
-      <p class="lead" style="margin-top:22px;max-width:62ch;margin-inline:auto">No form to
+      <p class="lead" id="prix-p" style="margin-top:22px;max-width:62ch;margin-inline:auto">No form to
       fill in first, no one calling you back with a number. The same rates we quote by email.</p>
     </div>
 

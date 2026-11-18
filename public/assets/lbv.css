@@ -557,3 +557,30 @@ nav a.coulisses:hover{border-color:var(--accent);color:var(--accent)}
 @media (max-width:900px){
   nav a.coulisses{display:block;text-align:center;margin-top:10px;border-bottom:1px solid var(--trait)}
 }
+
+/* ---------- le visiteur qui n'a pas voulu s'enregistrer ----------
+   Il garde les dates, le calendrier et le choix des prestations. Les
+   montants lui arrivent masques, et deux fonctions restent fermees.
+
+   Le masque est pose a l'affichage, pas au calcul : le moteur renvoie les
+   vrais montants et quelqu'un qui ouvre les outils du navigateur les verra.
+   C'est une porte de demonstration, elle decourage le partage distrait, elle
+   n'arrete personne. Le jour ou la vraie connexion arrive, c'est le serveur
+   qui devra retenir les chiffres, pas cette feuille de style. */
+.somme .chiffre.flou b{color:var(--secondary);letter-spacing:.04em}
+
+.invite{border:1px solid var(--accent);background:rgba(175,118,0,.07);
+  padding:18px 20px;margin:16px 0 4px}
+.invite p{margin:0 0 14px;font-size:14.5px;line-height:1.6;color:var(--primary)}
+.invite b{font-weight:600}
+.invite .bt{padding:12px 22px;font-size:12px}
+
+.verrou{border:1px dashed var(--trait);background:rgba(175,118,0,.04);
+  padding:26px 22px;margin-top:22px;text-align:center}
+.verrou b{display:block;font-family:var(--serif);font-weight:500;
+  font-size:21px;color:var(--primary);margin-bottom:7px}
+.verrou p{margin:0 auto 16px;max-width:46ch;font-size:14.5px;line-height:1.6;
+  color:var(--secondary)}
+.verrou .bt{background:transparent;color:var(--accent);padding:12px 22px;
+  font-size:12px}
+.verrou .bt:hover{background:var(--accent);color:var(--cream)}
