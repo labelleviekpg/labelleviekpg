@@ -7,10 +7,13 @@
    moteur, qui le controle comme il l'a toujours fait. Ce fichier ne fait que
    transporter, il n'ouvre aucune porte. */
 
+/* Les deux ecritures menent au meme endroit. Les pages se lient entre elles
+   par la forme courte, mais un lien copie ou un signet pris avant ce jour
+   porte le .html : il ne doit pas tomber sur une page introuvable. */
 const PAGES = {
-  "/admin": "/admin.html",
-  "/fiche": "/fiche.html",
-  "/devis": "/devis.html"
+  "/admin": "/admin.html",       "/admin.html": "/admin.html",
+  "/fiche": "/fiche.html",       "/fiche.html": "/fiche.html",
+  "/devis": "/devis.html",       "/devis.html": "/devis.html"
 };
 
 /* Ce que les pages de la console appellent. Liste fermee : aucun chemin
@@ -38,7 +41,9 @@ async function parle(env, chemin, init){
 }
 
 export async function console_(chemin, requete, env){
-  const vers = PAGES[chemin] || chemin;
+  /* La question qui suit le chemin fait partie de l'adresse : sans elle,
+     /devis?id=... arrive au moteur sans son id et la page s'ouvre vide. */
+  const vers = (PAGES[chemin] || chemin) + new URL(requete.url).search;
 
   const entetes = new Headers();
   const cle = requete.headers.get("x-lbv-cle");
