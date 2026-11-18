@@ -39,3 +39,11 @@ Puis verifier, sur les pages touchees :
 - aucune erreur de console
 - toutes les images ont un alt
 - un seul H1 par page, canonical et og:image presents
+
+## La galerie
+
+Elle ne se construit jamais a la main. `galerie([[fichier, alt], ...])` calcule
+la largeur de chaque photo pour que la derniere rangee se remplisse toujours :
+multiple de trois, trois par rangee ; nombre pair, deux par rangee ; sinon la
+derniere rangee s'elargit. Une grille ouverte laisse un trou des que le nombre
+de photos ne tombe pas juste, et ca se voit comme une image manquante.

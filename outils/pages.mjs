@@ -229,10 +229,32 @@ const faqLd = {
     acceptedAnswer: { "@type": "Answer", text: r } }))
 };
 
-/* une photo cliquable pour la visionneuse */
-const vue = (f, alt, cls = "") =>
-  `<a href="/img/${f}.jpg" data-vue="/img/${f}.jpg" data-lg="${e(alt)}"${cls ? ` class="${cls}"` : ""}>` +
-  img(f, alt, { tailles: "(min-width:900px) 300px, 46vw" }) + `</a>`;
+/* une photo cliquable pour la visionneuse. `l` est le nombre de colonnes
+   qu'elle occupe sur la grille de six. */
+const vue = (f, alt, l = 2) =>
+  `<a href="/img/${f}.jpg" data-vue="/img/${f}.jpg" data-lg="${e(alt)}" data-l="${l}">` +
+  img(f, alt, { tailles: l === 6 ? "(min-width:900px) 1100px, 92vw"
+                     : l === 3 ? "(min-width:900px) 560px, 92vw"
+                               : "(min-width:900px) 370px, 46vw" }) + `</a>`;
+
+/* La derniere rangee doit toujours se remplir, sans jamais produire un pave
+   qui ecrase le reste. Multiple de trois : trois par rangee. Pair : deux par
+   rangee, ce qui donne un carre propre a quatre photos. Sinon on elargit la
+   derniere rangee de ce qu'il faut. */
+function galerie(photos){
+  const n = photos.length;
+  let large = (i) => 2;
+  if (n % 3 === 0)       large = () => 2;
+  else if (n % 2 === 0)  large = () => 3;
+  else {
+    const reste = n % 3;
+    const debut = n - reste;
+    const fin = reste === 1 ? 6 : 3;
+    large = (i) => i >= debut ? fin : 2;
+  }
+  return `<div class="galerie">` + photos.map(([f, alt], i) =>
+    vue(f, alt, large(i))).join("") + `</div>`;
+}
 
 /* ============================================================ */
 /*  HOME                                                        */
@@ -329,14 +351,14 @@ const home = page({
       <h2>Designed for doing nothing well.</h2>
       <hr class="filet c">
     </div>
-    <div class="galerie">
-      ${vue("pool-wide", "Wide view of the lagoon pool with palms and statues", "large")}
-      ${vue("deck-salah", "Teak deck leading to the thatched salah and hanging egg chairs")}
-      ${vue("warrior-gong", "Terracotta warrior statue and a bronze gong beside the water")}
-      ${vue("pool-loungers", "Sun loungers and the sculpted outdoor shower")}
-      ${vue("presidential-3", "Terrace with water features and a rattan daybed")}
-      ${vue("triple-3", "Hammock and hanging bench in a private garden")}
-    </div>
+    ${galerie([
+      ["pool-wide", "Wide view of the lagoon pool with palms and statues"],
+      ["deck-salah", "Teak deck leading to the thatched salah and hanging egg chairs"],
+      ["warrior-gong", "Terracotta warrior statue and a bronze gong beside the water"],
+      ["pool-loungers", "Sun loungers and the sculpted outdoor shower"],
+      ["presidential-3", "Terrace with water features and a rattan daybed"],
+      ["triple-3", "Private garden with a round rattan daybed under the palms"]
+    ])}
   </div>
 </section>
 
@@ -520,7 +542,7 @@ for (const c of CHAMBRES){
 <section class="alt">
   <div class="pl">
     <div class="centre"><span class="sur">The room</span><h2>Look around</h2><hr class="filet c"></div>
-    <div class="galerie">${c.photos.map(p => vue(p.f, p.alt)).join("")}</div>
+    ${galerie(c.photos.map(p => [p.f, p.alt]))}
   </div>
 </section>
 
@@ -628,13 +650,14 @@ ecris("location/index.html", page({
 <section class="alt">
   <div class="pl">
     <div class="centre"><span class="sur">Around the house</span><h2>Explore, unwind, come back</h2><hr class="filet c"></div>
-    <div class="galerie">
-      ${vue("deck-salah", "Teak deck and thatched salah with hanging egg chairs", "large")}
-      ${vue("warrior-gong", "Terracotta warrior and bronze gong beside the pool")}
-      ${vue("elephant-red", "Red lacquered elephant sculpture in the garden")}
-      ${vue("triple-3", "Hammock and hanging bench under the palms")}
-      ${vue("pool-loungers", "Loungers and the outdoor shower by the water")}
-    </div>
+    ${galerie([
+      ["deck-salah", "Teak deck and thatched salah with hanging egg chairs"],
+      ["warrior-gong", "Terracotta warrior and bronze gong beside the pool"],
+      ["elephant-red", "Red lacquered elephant sculpture in the garden"],
+      ["triple-3", "Round rattan daybed in a private garden"],
+      ["pool-loungers", "Loungers and the outdoor shower by the water"],
+      ["pool-wide", "The lagoon pool seen from the far end of the garden"]
+    ])}
   </div>
 </section>
 
