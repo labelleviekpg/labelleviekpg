@@ -41,6 +41,10 @@
     {
       "url": "/contact",
       "texte": "Contact"
+    },
+    {
+      "url": "/admin",
+      "texte": "Admin"
     }
   ],
   "services": [

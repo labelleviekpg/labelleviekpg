@@ -2,6 +2,7 @@
    par le code : le formulaire de contact, et le pont vers le calculateur. */
 import { contact } from "./contact.js";
 import { estMoteur, moteur } from "./moteur.js";
+import { estConsole, console_ } from "./console.js";
 
 export default {
   async fetch(requete, env){
@@ -14,6 +15,11 @@ export default {
 
     if (estMoteur(chemin)){
       try { return await moteur(chemin, requete, env); }
+      catch { return erreur(); }
+    }
+
+    if (estConsole(chemin)){
+      try { return await console_(chemin, requete, env); }
       catch { return erreur(); }
     }
 

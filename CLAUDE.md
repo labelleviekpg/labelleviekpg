@@ -114,3 +114,20 @@ etant refait entre les deux, et la case revenait a son etat de depart.
 Pour la meme raison, un redessin ne se fait jamais pendant le traitement d'un
 evenement : `redessine()` attend le tour suivant et rend le focus a l'element
 qui l'avait, sinon qui navigue au clavier le perd a chaque case.
+
+## La console de gestion
+
+Elle vit dans le Worker du calculateur, avec la base des demandes. `src/console.js`
+la sert depuis ce domaine : `/admin`, `/fiche`, `/devis` et les routes qu'elles
+appellent, par liaison de service. Un seul domaine, un seul mot de passe, et le
+jour ou le vrai domaine est branche la console le suit sans rien changer.
+
+Ce fichier ne verifie aucun mot de passe. Il transporte l'en-tete `x-lbv-cle`
+jusqu'au moteur, qui controle comme il l'a toujours fait. Il n'ouvre donc aucune
+porte, et la liste des chemins est fermee : aucun chemin construit depuis l'URL
+du visiteur.
+
+**Le lien Admin est visible dans le menu le temps de la mise au point.** Il porte
+la classe `coulisses` pour qu'on ne l'oublie pas en place, il est absent du plan
+du site et du pied de page, et la console repond `noindex, nofollow`. A retirer
+du menu avant l'ouverture au public.

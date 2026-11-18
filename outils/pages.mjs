@@ -60,7 +60,9 @@ const ic = (k, c = "") => `<svg viewBox="0 0 24 24" aria-hidden="true"${c ? ` cl
 /* ---------- entete, pied, bandeau ---------- */
 function barre(actif){
   const liens = S.nav.map(l =>
-    `<li><a href="${l.url}"${l.url === actif ? ' aria-current="page"' : ""}>${e(l.texte)}</a></li>`
+    `<li><a href="${l.url}"${l.url === actif ? ' aria-current="page"' : ""}` +
+    `${l.url === "/admin" ? ' class="coulisses" rel="nofollow" target="_blank"' : ""}` +
+    `>${e(l.texte)}</a></li>`
   ).join("");
   return `<a class="saut" href="#corps">Skip to content</a>
 <header class="barre">
@@ -92,7 +94,8 @@ const CTA = ["Come home to happiness",
   "Discover the hidden corners of Koh Phangan, eat well, find the balance between comfort, style and art. Whether you are after quiet, adventure or a little of both, this is where the story starts."];
 
 function pied(){
-  const liens = S.nav.map(l => `<li><a href="${l.url}">${e(l.texte)}</a></li>`).join("");
+  const liens = S.nav.filter(l => l.url !== "/admin")
+    .map(l => `<li><a href="${l.url}">${e(l.texte)}</a></li>`).join("");
   const ch = CHAMBRES.map(c =>
     `<li><a href="/accommodations/${c.cle}">${e(c.nom)}</a></li>`).join("");
   return `<footer>

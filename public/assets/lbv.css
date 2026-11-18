@@ -548,3 +548,12 @@ body[data-visionneuse=oui] .barre{opacity:0;pointer-events:none}
 .ligne-mien .pay input{accent-color:var(--accent);width:15px;height:15px}
 .ligne-mien select:focus,.ligne-mien .nb:focus{outline:0;border-color:var(--accent)}
 .reglage .nb[readonly]{background:var(--cream2);color:var(--secondary);cursor:default}
+
+/* Le lien vers les coulisses. Visible le temps de la mise au point, il se
+   distingue du menu du client pour qu'on ne l'oublie pas en place. */
+nav a.coulisses{border:1px solid var(--trait);padding:7px 13px;color:var(--secondary);
+  letter-spacing:.12em}
+nav a.coulisses:hover{border-color:var(--accent);color:var(--accent)}
+@media (max-width:900px){
+  nav a.coulisses{display:block;text-align:center;margin-top:10px;border-bottom:1px solid var(--trait)}
+}
