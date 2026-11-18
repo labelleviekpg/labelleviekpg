@@ -13,7 +13,8 @@
 const PAGES = {
   "/admin": "/admin.html",       "/admin.html": "/admin.html",
   "/fiche": "/fiche.html",       "/fiche.html": "/fiche.html",
-  "/devis": "/devis.html",       "/devis.html": "/devis.html"
+  "/devis": "/devis.html",       "/devis.html": "/devis.html",
+  "/planning": "/planning.html", "/planning.html": "/planning.html"
 };
 
 /* Ce que les pages de la console appellent. Liste fermee : aucun chemin

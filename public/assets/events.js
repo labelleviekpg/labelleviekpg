@@ -976,6 +976,17 @@
     if (plan.length)
       corps.message += "\n\nTheir own plan for the week:\n" + plan.join("\n");
 
+    /* Le message reste lisible tel quel, mais l'equipe a besoin des dates
+       completes pour poser le programme sur un calendrier : "Fri 8" ne porte
+       ni mois ni annee. On envoie donc aussi la forme structuree. */
+    corps.plan = MIENS.filter(function(m){ return m.texte.trim(); })
+      .map(function(m){
+        return { texte: m.texte.trim(), jours: m.jours.slice(),
+                 tarif: m.tarif, montant: m.montant };
+      });
+    corps.voeux = SPEC.filter(function(x){ return x.quoi; })
+      .map(function(x){ return { quoi: x.quoi, detail: x.detail.trim() }; });
+
     if (!corps.nom || !corps.courriel){
       dit.className = "dit non"; dit.textContent = "We need a name and an email to answer you."; return;
     }
