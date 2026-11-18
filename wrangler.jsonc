@@ -13,6 +13,11 @@
   "d1_databases": [
     { "binding": "DB", "database_name": "labelleviekpg", "database_id": "53700590-1e9e-4797-9e2c-51c0d82314f6" }
   ],
+  // Le calculateur de privatisation tourne dans son propre Worker. On lui
+  // parle par liaison de service, sans sortir sur le reseau public.
+  "services": [
+    { "binding": "MOTEUR", "service": "labellevie" }
+  ],
   "vars": {
     "CONTACT_VERS": "events@labelleviekpg.com"
   }

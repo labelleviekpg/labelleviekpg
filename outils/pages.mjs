@@ -150,7 +150,8 @@ function jsonld(extra){
 }
 
 /* ---------- squelette ---------- */
-function page({ url, titre, desc, ogImage = "pool-wide", actif, corps, extraLd = null }){
+function page({ url, titre, desc, ogImage = "pool-wide", actif, corps, extraLd = null,
+                script = null, horsIndex = false }){
   const canon = S.site + (url === "/" ? "/" : url);
   return `<!doctype html>
 <html lang="en">
@@ -168,6 +169,7 @@ function page({ url, titre, desc, ogImage = "pool-wide", actif, corps, extraLd =
 <meta property="og:image" content="${S.site}/img/${ogImage}.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#2E1805">
+${horsIndex ? '<meta name="robots" content="noindex,follow">\n' : ""}
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -183,6 +185,7 @@ ${corps}
 </main>
 ${pied()}
 <script src="/assets/lbv.js" defer><\/script>
+${script ? `<script src="${script}" defer><\/script>` : ""}
 </body>
 </html>
 `;
@@ -585,6 +588,148 @@ ${final(CTA[0], CTA[1])}`
 }
 
 /* ============================================================ */
+/*  EVENTS : la maison entiere, pour un groupe                  */
+/* ============================================================ */
+const GOOGLE_G = '<svg viewBox="0 0 48 48" aria-hidden="true">' +
+  '<path fill="#4285F4" d="M45 24.5c0-1.6-.1-2.8-.4-4H24v7.5h12c-.3 2-1.6 5-4.5 7l6.9 5.3C42.5 36.5 45 31 45 24.5z"/>' +
+  '<path fill="#34A853" d="M24 46c5.9 0 10.9-2 14.5-5.3l-6.9-5.3c-1.9 1.3-4.4 2.2-7.6 2.2-5.8 0-10.7-3.8-12.5-9.1l-7.1 5.5C8 41.2 15.4 46 24 46z"/>' +
+  '<path fill="#FBBC05" d="M11.5 28.5c-.5-1.4-.7-2.9-.7-4.5s.3-3.1.7-4.5l-7.1-5.5C2.9 17 2 20.4 2 24s.9 7 2.4 10z"/>' +
+  '<path fill="#EA4335" d="M24 10.5c3.2 0 6 1.1 8.2 3.2l6.1-6.1C34.9 4.1 29.9 2 24 2 15.4 2 8 6.8 4.4 14l7.1 5.5c1.8-5.3 6.7-9.1 12.5-9.1z"/></svg>';
+
+ecris("events/index.html", page({
+  url: "/events", actif: "/events", ogImage: "deck-salah",
+  script: "/assets/events.js", horsIndex: true,
+  titre: "Private events and buyouts | La Belle Vie, Koh Phangan",
+  desc: "Take the whole of La Belle Vie for your group. Six rooms, a lagoon pool and a private garden on Koh Phangan, for retreats, offsites and celebrations.",
+  corps: `
+<div class="porte" id="porte" role="dialog" aria-modal="true" aria-labelledby="porte-t">
+  <div class="boite">
+    <span class="sur">Private events</span>
+    <h2 id="porte-t">See dates and prices</h2>
+    <p>Sign in once and the calendar, the calculator and our rates open up.</p>
+    <button type="button" class="gg" id="porte-go">${GOOGLE_G}Continue with Google</button>
+    <button type="button" class="sinon" id="porte-non">Continue without signing in</button>
+    <p class="note"><strong>This is a demonstration.</strong> Nothing is asked of you and
+    nothing is created: no password, no account, no email. Either button simply opens
+    the page. The real sign in comes later.</p>
+  </div>
+</div>
+
+<section class="haut court">
+  ${img("deck-salah", "The teak deck and thatched salah at La Belle Vie, set for a group", { lazy:false })}
+  <div class="pl">
+    <span class="sur">Private events</span>
+    <h1 style="font-size:clamp(36px,6.6vw,74px)">The whole house,<br>one group at a time</h1>
+  </div>
+</section>
+
+<section>
+  <div class="pl deux penche">
+    <div class="monte">
+      <span class="sur">What you get</span>
+      <h2>Not a venue you share. A house you are handed the keys to.</h2>
+      <hr class="filet">
+      <p style="margin-top:26px">When you take La Belle Vie privately, you take all of it. The
+      <span id="chambres">6</span> rooms, the lagoon pool, the salah, the garden, the bar.
+      No other guests, no timetable but yours, no one at the next table.</p>
+      <p>It suits a retreat, a company offsite, a wedding party, a birthday or a shoot.
+      The house sleeps up to <span id="capacite">15</span>. It is let for a minimum of
+      <span id="minimum">5</span> nights.</p>
+      <ul class="pts">
+        <li>Every room on one level, no step anywhere</li>
+        <li>Breakfast for everyone, every morning, included</li>
+        <li>A self service bar with soft drinks, juice, coffee and tea</li>
+        <li>A concierge who knows the island and answers all day</li>
+        <li>Meals, transfers, a meeting room and activities on request</li>
+      </ul>
+    </div>
+    <div class="monte">${img("presidential-3", "Terrace with water features and a rattan daybed", { tailles:"(min-width:860px) 540px, 92vw", ratio:"haut" })}</div>
+  </div>
+</section>
+
+<section class="alt" id="calendrier">
+  <div class="pl">
+    <div class="centre">
+      <span class="sur">Availability</span>
+      <h2>Pick your window</h2>
+      <hr class="filet c">
+      <p class="lead" style="margin-top:22px;max-width:60ch;margin-inline:auto">Click an
+      arrival, then a departure. Crossed dates are already taken.</p>
+    </div>
+    <div class="pl" style="padding-inline:0">
+      <div class="navmois">
+        <button type="button" id="prec" aria-label="Previous months">&lsaquo;</button>
+        <ul class="legende">
+          <li><i class="l-privee"></i>Private season, best rate</li>
+          <li><i class="l-hotel"></i>Hotel season</li>
+          <li><i class="l-pris"></i>Taken</li>
+        </ul>
+        <button type="button" id="suiv" aria-label="Next months">&rsaquo;</button>
+      </div>
+      <div class="cal" id="mois"></div>
+    </div>
+  </div>
+</section>
+
+<section id="calc">
+  <div class="pl">
+    <div class="centre">
+      <span class="sur">Your price</span>
+      <h2>What your stay costs, to the baht</h2>
+      <hr class="filet c">
+      <p class="lead" style="margin-top:22px;max-width:62ch;margin-inline:auto">No form to
+      fill in first, no one calling you back with a number. The same rates we quote by email.</p>
+    </div>
+
+    <div class="champs">
+      <div><label for="a">Arrival</label><input type="date" id="a"></div>
+      <div><label for="d">Departure</label><input type="date" id="d"></div>
+      <div><label for="p">Guests</label><input type="number" id="p" min="1" value="12"></div>
+      <div><label for="dev">Shown in</label><select id="dev"></select></div>
+    </div>
+
+    <p class="sur" style="margin-top:36px">Add what you need</p>
+    <div class="opts" id="opts"></div>
+
+    <div class="somme" id="somme"></div>
+  </div>
+</section>
+
+<section class="alt" id="demande">
+  <div class="pl serre">
+    <div class="centre"><span class="sur">Hold these dates</span>
+      <h2>Tell us about your group</h2><hr class="filet c"></div>
+    <div class="form">
+      <div class="duo">
+        <div><label for="q-nom">Your name</label><input id="q-nom" autocomplete="name"></div>
+        <div><label for="q-mail">Email</label><input id="q-mail" type="email" autocomplete="email"></div>
+      </div>
+      <div class="duo">
+        <div><label for="q-org">Company or group</label><input id="q-org" autocomplete="organization"></div>
+        <div><label for="q-tel">Phone or WhatsApp</label><input id="q-tel" autocomplete="tel"></div>
+      </div>
+      <div class="duo">
+        <div><label for="q-pays">Where you are based</label><input id="q-pays" autocomplete="country-name"></div>
+        <div><label for="q-type">What kind of event</label>
+          <select id="q-type">
+            <option>Retreat</option><option>Company offsite</option>
+            <option>Wedding or celebration</option><option>Family or friends</option>
+            <option>Photo or film shoot</option><option>Something else</option>
+          </select></div>
+      </div>
+      <div><label for="q-msg">Anything we should know</label>
+        <textarea id="q-msg" rows="4" placeholder="Dietary needs, arrival times, a teacher to house, a room to set up, anything at all."></textarea></div>
+      <p class="dit" id="q-dit" role="status" aria-live="polite"></p>
+      <div><button type="button" class="bt" id="q-go">Send the request</button></div>
+    </div>
+  </div>
+</section>
+
+${final("Let us hold the week for you",
+  "Send your dates and we answer the same day with a firm yes or no on availability, plus a written quote you can forward to whoever signs it.")}`
+}));
+
+/* ============================================================ */
 /*  LOCATION                                                    */
 /* ============================================================ */
 const AUTOUR = [
@@ -762,6 +907,7 @@ ecris("404.html", page({
 </section>`
 }));
 
+/* /events est servie mais pas listee : elle se partage par son lien. */
 const urls = ["/", "/about", "/accommodations", "/location", "/contact"]
   .concat(CHAMBRES.map(c => `/accommodations/${c.cle}`));
 const jour = new Date().toISOString().slice(0, 10);

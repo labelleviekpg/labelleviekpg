@@ -254,13 +254,15 @@ nav{position:relative;z-index:2}
 /* ---------- formulaire ---------- */
 .form{display:grid;gap:18px;margin-top:30px}
 @media (min-width:640px){.form .duo{display:grid;grid-template-columns:1fr 1fr;gap:18px}}
-.form label{display:block;font:500 11.5px/1 var(--sans);letter-spacing:.16em;
+.form label,.champs label{display:block;font:500 11.5px/1 var(--sans);letter-spacing:.16em;
   text-transform:uppercase;color:var(--secondary);margin-bottom:9px}
-.form input,.form textarea,.form select{
+.form input,.form textarea,.form select,
+.champs input,.champs select{
   width:100%;padding:14px 16px;border:1px solid var(--trait);background:#fff;
   font:400 16px/1.5 var(--sans);color:var(--text);border-radius:0;
 }
-.form input:focus,.form textarea:focus{outline:0;border-color:var(--accent)}
+.form input:focus,.form textarea:focus,.champs input:focus,.champs select:focus{
+  outline:0;border-color:var(--accent)}
 .form textarea{resize:vertical;min-height:140px}
 .dit{font-size:14.5px;margin-top:4px;min-height:1.4em}
 .dit.ok{color:var(--secondary)}
@@ -329,3 +331,91 @@ footer a:hover{color:var(--gold)}
 
 /* Pendant la visionneuse, l'entete se retire. */
 body[data-visionneuse=oui] .barre{opacity:0;pointer-events:none}
+
+/* ===================== la page evenements ===================== */
+
+/* la porte de demonstration */
+.porte{position:fixed;inset:0;z-index:95;display:flex;align-items:center;justify-content:center;
+  background:rgba(46,24,5,.86);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);
+  padding:max(20px,env(safe-area-inset-left,0px))}
+.porte[hidden]{display:none}
+.porte .boite{background:var(--cream);max-width:430px;width:100%;padding:clamp(28px,5vw,44px);
+  text-align:center;box-shadow:0 30px 80px rgba(27,13,2,.45)}
+.porte h2{font-size:clamp(23px,3vw,29px)}
+.porte p{font-size:15px;margin-top:14px}
+.porte .gg{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;
+  margin-top:26px;background:#fff;color:#3C4043;border:1px solid #DADCE0;border-radius:4px;
+  padding:13px 20px;font:500 15px/1 var(--sans);cursor:pointer;transition:box-shadow .2s}
+.porte .gg:hover{box-shadow:0 1px 6px rgba(32,33,36,.28)}
+.porte .gg svg{width:19px;height:19px;flex:none}
+.porte .sinon{margin-top:16px;background:none;border:0;color:var(--secondary);
+  font:400 13.5px/1 var(--sans);text-decoration:underline;cursor:pointer}
+.porte .note{margin-top:22px;padding-top:18px;border-top:1px solid var(--trait);
+  font-size:12.5px;line-height:1.6;color:var(--secondary)}
+
+/* le calendrier */
+.cal{display:grid;gap:clamp(20px,3vw,34px);grid-template-columns:1fr;margin-top:30px}
+@media (min-width:760px){.cal{grid-template-columns:1fr 1fr}}
+.cal .mois h4{text-align:center;margin-bottom:14px;font-size:17px}
+.cal .jours{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal .jours span,.cal .jours button{aspect-ratio:1/1;display:flex;align-items:center;
+  justify-content:center;font:400 13px/1 var(--sans);border:0;background:none;color:var(--text)}
+.cal .jours .tete{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--secondary);aspect-ratio:auto;padding-bottom:6px}
+.cal .jours button{cursor:pointer;border-radius:2px;transition:background .15s,color .15s}
+.cal .jours button.privee{background:rgba(175,118,0,.26);color:var(--primary);font-weight:500}
+.cal .jours button.hotel{background:rgba(120,81,0,.08);color:#7A6B55}
+.cal .jours button.hors{color:#B9B0A2}
+.cal .jours button.pris{background:#CBBCA4;color:#6E6250;text-decoration:line-through;cursor:not-allowed}
+.cal .jours button.entre{background:rgba(175,118,0,.3)}
+.cal .jours button.bord{background:var(--accent);color:var(--cream);font-weight:500}
+.cal .jours button:hover:not(.pris){outline:1px solid var(--accent)}
+.navmois{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:26px}
+@media (max-width:700px){
+  /* sur telephone les fleches tiennent leur ligne, la legende passe dessous */
+  .navmois{flex-wrap:wrap;justify-content:center}
+  .navmois button{order:1}
+  .navmois .legende{order:3;width:100%;justify-content:center;margin-top:4px}
+  .navmois button:last-of-type{order:2;margin-left:auto}
+  .navmois button:first-of-type{margin-right:auto}
+}
+.navmois button{background:none;border:1px solid var(--trait);color:var(--primary);
+  width:42px;height:42px;cursor:pointer;font-size:17px;line-height:1}
+.navmois button:hover{border-color:var(--accent);color:var(--accent)}
+.legende{display:flex;flex-wrap:wrap;gap:8px 20px;margin-top:22px;font-size:12.5px;
+  color:var(--secondary);list-style:none;padding:0}
+.legende li{display:flex;align-items:center;gap:8px}
+.legende i{width:14px;height:14px;border-radius:2px;display:block}
+.legende .l-privee{background:rgba(175,118,0,.26);border:1px solid var(--trait)}
+.legende .l-hotel{background:rgba(120,81,0,.08);border:1px solid var(--trait)}
+.legende .l-pris{background:#CBBCA4}
+
+/* le calculateur */
+.champs{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));
+  margin-top:30px}
+.opts{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));
+  margin-top:26px}
+.opt{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--trait);
+  padding:13px 15px;cursor:pointer;background:#fff;transition:border-color .2s}
+.opt:hover{border-color:var(--accent)}
+.opt input{margin-top:3px;accent-color:var(--accent);width:16px;height:16px;flex:none}
+.opt b{display:block;font-weight:500;font-size:14.5px;color:var(--primary)}
+.opt i{display:block;font-style:normal;font-size:12.5px;color:var(--secondary);margin-top:3px}
+
+.somme{background:#fff;border:1px solid var(--trait);padding:clamp(22px,3vw,32px);margin-top:34px}
+.somme .chiffre{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;
+  justify-content:space-between;padding-bottom:16px;border-bottom:1px solid var(--trait)}
+.somme .chiffre span{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--secondary)}
+.somme .chiffre b{font-family:var(--serif);font-size:clamp(27px,4vw,40px);font-weight:500;
+  color:var(--primary)}
+.somme .detail{margin-top:16px}
+.somme .detail td{padding:8px 0;border-bottom:1px solid rgba(175,118,0,.13);font-size:14.5px}
+.somme .detail td:last-child{text-align:right;white-space:nowrap}
+.somme .detail tfoot td{border:0;padding-top:14px;font-weight:500;color:var(--primary);font-size:16px}
+.aide{font-size:13.5px;color:var(--secondary);margin-top:16px;line-height:1.65}
+.alerte{background:rgba(175,118,0,.1);border-left:2px solid var(--accent);
+  padding:12px 16px;font-size:14px;margin-bottom:14px}
+
+.recu{text-align:center;background:#fff;border:1px solid var(--trait);padding:clamp(30px,5vw,56px)}
+.recu .filet{margin-inline:auto}
+.recu p{margin-top:18px;max-width:52ch;margin-inline:auto}

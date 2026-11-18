@@ -1,18 +1,20 @@
-/* La Belle Vie. Les pages sortent de public/, une seule route passe par le code. */
+/* La Belle Vie. Les pages sortent de public/, deux familles de routes passent
+   par le code : le formulaire de contact, et le pont vers le calculateur. */
 import { contact } from "./contact.js";
+import { estMoteur, moteur } from "./moteur.js";
 
 export default {
   async fetch(requete, env){
     const chemin = new URL(requete.url).pathname;
 
     if (chemin === "/api/contact"){
-      try {
-        return await contact(requete, env);
-      } catch {
-        return new Response(JSON.stringify({ erreur: "serveur" }), {
-          status: 500, headers: { "content-type": "application/json" }
-        });
-      }
+      try { return await contact(requete, env); }
+      catch { return erreur(); }
+    }
+
+    if (estMoteur(chemin)){
+      try { return await moteur(chemin, requete, env); }
+      catch { return erreur(); }
     }
 
     const r = await env.ASSETS.fetch(requete);
@@ -26,3 +28,9 @@ export default {
     return r;
   }
 };
+
+function erreur(){
+  return new Response(JSON.stringify({ erreur: "serveur" }), {
+    status: 500, headers: { "content-type": "application/json" }
+  });
+}
