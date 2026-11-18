@@ -151,6 +151,7 @@
     if (!t || !m) return sou(thb) + " THB";
     var v = thb / t;
     var texte = c === "BTC" ? v.toFixed(4)
+              : c === "THB" || c === "JPY" ? sou(v)   /* ni l'un ni l'autre ne compte de centimes */
               : v >= 1000 ? sou(v)
               : v.toFixed(2);
     return m.signe + " " + texte + (c === "THB" ? "" : "");
@@ -184,6 +185,82 @@
            'or type them above, and the price appears here.</p>';
   }
 
+  /* Le detail ligne a ligne. Rien ne doit rester implicite : chaque nuit avec
+     sa saison et son prix, chaque prestation avec le calcul qui donne son
+     total. Un client qui compare deux devis doit pouvoir refaire l'addition. */
+  var SEM = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  function jourCourt(j){
+    var d = new Date(j + "T00:00:00");
+    return SEM[d.getDay()] + " " + d.getDate() + " " + MOIS[d.getMonth()].slice(0, 3);
+  }
+
+  /* Comment une prestation se multiplie, en clair. */
+  function calculDe(l, v){
+    var p = v.personnes, n = v.nuits, q = l.quantite || 1;
+    var bout = [];
+    if (q > 1) bout.push(q + " \u00d7");
+    if (l.unite === 1) bout.push(p + " guests \u00d7 " + n + " nights");
+    else if (l.unite === 2) bout.push(p + " guests");
+    else if (l.unite === 3) return (q > 1 ? q + " \u00d7 " : "") +
+      "once for the stay, " + enMonnaie(l.prix);
+    else bout.push(n + " days");
+    bout.push("\u00d7 " + enMonnaie(l.prix));
+    return bout.join(" ");
+  }
+
+  function detail(v){
+    var h = ['<details class="repli"><summary>See every line, night by night</summary>'];
+
+    h.push('<table class="nuits"><thead><tr>' +
+      "<th>Night</th><th>Season</th><th>Price</th></tr></thead><tbody>");
+    for (var i = 0; i < v.detail.length; i++){
+      var x = v.detail[i];
+      var nom = x.saison ? x.saison.nom : "Outside the published calendar";
+      /* "Spring, private season" dit deja ce qu'il est : on n'ajoute le mode
+         que lorsque le nom ne le porte pas. */
+      var dit = x.saison ? /private|hotel/i.test(x.saison.nom) : true;
+      var mode = (x.saison && !dit)
+        ? (x.saison.mode === "privee" ? "private season" : "hotel season") : "";
+      var cadeau = x.palier === "cadeau 70 USD";
+      h.push("<tr" + (cadeau ? ' class="cadeau"' : "") + "><td>" + jourCourt(x.date) +
+        (prise(x.date) ? ' <span class="sai">already taken</span>' : "") + "</td>" +
+        "<td>" + E(nom) + (mode ? '<span class="sai"> \u00b7 ' + mode + "</span>" : "") +
+        (cadeau ? '<span class="sai"> \u00b7 best rate, from the eighth night</span>' : "") +
+        "</td><td>" + enMonnaie(x.prix) + "</td></tr>");
+    }
+    h.push('</tbody><tfoot><tr><td colspan="2">The house, ' + v.nuits +
+      " nights, breakfast included</td><td>" + enMonnaie(v.hebergement) +
+      "</td></tr></tfoot></table>");
+
+    if (v.lignes.length){
+      h.push('<table class="nuits" style="margin-top:28px"><thead><tr>' +
+        "<th>What you asked for</th><th>How it adds up</th><th>Total</th>" +
+        "</tr></thead><tbody>");
+      for (var k = 0; k < v.lignes.length; k++){
+        var l = v.lignes[k];
+        h.push("<tr><td>" + E(l.nom) + "</td><td>" +
+          '<span class="sai">' + calculDe(l, v) + "</span></td><td>" +
+          enMonnaie(l.total) + "</td></tr>");
+      }
+      h.push('</tbody><tfoot><tr><td colspan="2">What you added</td><td>' +
+        enMonnaie(v.options) + "</td></tr></tfoot></table>");
+    }
+
+    h.push('<table class="nuits" style="margin-top:28px"><tbody>' +
+      "<tr><td>The house, " + v.nuits + " nights</td><td></td><td>" +
+      enMonnaie(v.hebergement) + "</td></tr>" +
+      (v.lignes.length ? "<tr><td>What you added</td><td></td><td>" +
+        enMonnaie(v.options) + "</td></tr>" : "") +
+      '</tbody><tfoot><tr><td>Total for ' + v.personnes + " guests</td><td></td><td>" +
+      enMonnaie(v.total) + "</td></tr></tfoot></table>");
+
+    h.push('<p class="aide">Breakfast for everyone, the self service bar, ' +
+      "housekeeping, Wi-Fi and parking are in the price of the house. " +
+      "Nothing above is added later.</p>");
+    h.push("</details>");
+    return h.join("");
+  }
+
   function montre(v){
     var h = [];
     var chevauche = false, j;
@@ -215,6 +292,7 @@
     h.push('<p class="aide">' + enMonnaie(v.moyenneNuit) + " a night · " +
       enMonnaie(v.parPersonneNuit) + " per guest, per night. " +
       "Prices in Thai baht, converted for guidance.</p>");
+    h.push(detail(v));
     h.push('<div class="bts"><a class="bt" href="#demande">Request these dates</a></div>');
     el("somme").innerHTML = h.join("");
   }

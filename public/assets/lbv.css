@@ -86,8 +86,8 @@ section{padding-block:var(--air)}
 .marque small{display:block;font:500 9.5px/1.6 var(--sans);letter-spacing:.3em;opacity:.8}
 .barre.pose .marque{color:var(--primary)}
 
-nav{margin-left:auto}
-nav ul{display:flex;gap:30px;list-style:none;margin:0;padding:0}
+nav{margin-left:auto;display:flex;align-items:center;gap:26px}
+nav ul{display:flex;gap:28px;list-style:none;margin:0;padding:0;align-items:center}
 nav a{
   font:500 12.5px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;
   color:var(--cream);text-decoration:none;padding-block:6px;transition:color .2s;
@@ -112,6 +112,7 @@ nav{position:relative;z-index:2}
 @media (max-width:900px){
   .burger{display:block}
   nav{
+    display:block;
     position:fixed;inset:0 0 0 auto;width:min(84vw,340px);
     background:var(--cream);padding:96px 32px 32px;
     transform:translateX(102%);transition:transform .32s cubic-bezier(.4,0,.2,1);
@@ -363,12 +364,14 @@ body[data-visionneuse=oui] .barre{opacity:0;pointer-events:none}
 .cal .jours .tete{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
   color:var(--secondary);aspect-ratio:auto;padding-bottom:6px}
 .cal .jours button{cursor:pointer;border-radius:2px;transition:background .15s,color .15s}
-.cal .jours button.privee{background:rgba(175,118,0,.26);color:var(--primary);font-weight:500}
-.cal .jours button.hotel{background:rgba(120,81,0,.08);color:#7A6B55}
+.cal .jours button.privee{background:var(--accent);color:var(--cream);font-weight:500}
+.cal .jours button.hotel{background:#E8E0D0;color:#6B5E49;
+  box-shadow:inset 0 0 0 1px rgba(120,81,0,.14)}
 .cal .jours button.hors{color:#B9B0A2}
 .cal .jours button.pris{background:#CBBCA4;color:#6E6250;text-decoration:line-through;cursor:not-allowed}
-.cal .jours button.entre{background:rgba(175,118,0,.3)}
-.cal .jours button.bord{background:var(--accent);color:var(--cream);font-weight:500}
+.cal .jours button.entre{background:var(--secondary);color:var(--cream)}
+.cal .jours button.bord{background:var(--primary);color:var(--cream);font-weight:500;
+  box-shadow:inset 0 0 0 2px var(--gold)}
 .cal .jours button:hover:not(.pris){outline:1px solid var(--accent)}
 .navmois{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:26px}
 @media (max-width:700px){
@@ -386,8 +389,8 @@ body[data-visionneuse=oui] .barre{opacity:0;pointer-events:none}
   color:var(--secondary);list-style:none;padding:0}
 .legende li{display:flex;align-items:center;gap:8px}
 .legende i{width:14px;height:14px;border-radius:2px;display:block}
-.legende .l-privee{background:rgba(175,118,0,.26);border:1px solid var(--trait)}
-.legende .l-hotel{background:rgba(120,81,0,.08);border:1px solid var(--trait)}
+.legende .l-privee{background:var(--accent);border:1px solid var(--accent)}
+.legende .l-hotel{background:#E8E0D0;border:1px solid rgba(120,81,0,.2)}
 .legende .l-pris{background:#CBBCA4}
 
 /* le calculateur */
@@ -419,3 +422,24 @@ body[data-visionneuse=oui] .barre{opacity:0;pointer-events:none}
 .recu{text-align:center;background:#fff;border:1px solid var(--trait);padding:clamp(30px,5vw,56px)}
 .recu .filet{margin-inline:auto}
 .recu p{margin-top:18px;max-width:52ch;margin-inline:auto}
+
+/* le devis, nuit par nuit */
+.nuits{width:100%;border-collapse:collapse;margin-top:14px}
+.nuits th{font:500 10.5px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--secondary);text-align:left;padding:0 0 9px;border-bottom:1px solid var(--trait)}
+.nuits td{padding:7px 0;border-bottom:1px solid rgba(175,118,0,.1);font-size:13.5px;
+  vertical-align:top}
+.nuits td:last-child,.nuits th:last-child{text-align:right;white-space:nowrap}
+.nuits .sai{color:var(--secondary);font-size:12.5px}
+.nuits tr.cadeau td{color:var(--accent)}
+.nuits tfoot td{border:0;padding-top:12px;font-weight:500;color:var(--primary)}
+.calcul{display:block;font-size:12px;color:var(--secondary);margin-top:2px}
+.repli{margin-top:26px;border-top:1px solid var(--trait);padding-top:18px}
+.repli>summary{cursor:pointer;list-style:none;font:500 11.5px/1 var(--sans);
+  letter-spacing:.16em;text-transform:uppercase;color:var(--accent);
+  display:flex;align-items:center;gap:9px}
+.repli>summary::-webkit-details-marker{display:none}
+.repli>summary::after{content:"";width:8px;height:8px;border-right:1.4px solid currentColor;
+  border-bottom:1.4px solid currentColor;transform:translateY(-2px) rotate(45deg);
+  transition:transform .22s}
+.repli[open]>summary::after{transform:translateY(1px) rotate(-135deg)}
