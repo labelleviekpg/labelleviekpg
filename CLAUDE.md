@@ -98,3 +98,14 @@ un bloc portent un prefixe clair : `jcase`, `sem-tete`, `ligne-mien`.
 Le controle de geometrie fait partie des verifications obligatoires : une
 section dont le contenu deborde se dessine par-dessus la suivante, et aucun
 test de liens, de metadonnees ou de console ne le voit.
+
+## Les cases a cocher
+
+C'est l'etat du site qui les tient, pas le navigateur. Le clic est lu une seule
+fois sur `.opt > .tete`, avec `preventDefault`, puis le bloc se redessine depuis
+`PRIS`. Sans cela un clic sur le libelle partait en deux activations, le bloc
+etant refait entre les deux, et la case revenait a son etat de depart.
+
+Pour la meme raison, un redessin ne se fait jamais pendant le traitement d'un
+evenement : `redessine()` attend le tour suivant et rend le focus a l'element
+qui l'avait, sinon qui navigue au clavier le perd a chaque case.

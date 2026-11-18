@@ -156,15 +156,19 @@
     return JC[d.getDay()] + " " + d.getDate();
   }
 
-  function stripJours(id, choisis, ouvert){
+  function stripJours(id, choisis, ouvert, indicatif){
     var n = nuitsDuSejour();
     if (!n.length) return '<span class="aide">Choose your dates first.</span>';
     var tous = !choisis;
     var cpt = tous ? n.length : choisis.length;
-    var h = ['<span class="resume">' +
-      (tous ? "Every day of the stay" : cpt + " of " + n.length + " days") +
-      '</span><button type="button" class="change" data-ouvre="' + E(id) + '">' +
-      (ouvert ? "Done" : "Pick the days") + "</button>"];
+    var h = [(indicatif
+        ? '<span class="aide">' + (tous ? "No day in particular" : cpt + " day" +
+            (cpt > 1 ? "s" : "") + " marked") + "</span>"
+        : '<span class="resume">' +
+            (tous ? "Every day of the stay" : cpt + " of " + n.length + " days") +
+            "</span>") +
+      '<button type="button" class="change" data-ouvre="' + E(id) + '">' +
+      (ouvert ? "Done" : indicatif ? "Mark the days" : "Pick the days") + "</button>"];
     if (!ouvert) return h.join("");
     h.push('<span class="raccourcis">' +
       '<button type="button" data-tout="' + E(id) + '">All</button>' +
@@ -185,40 +189,105 @@
     c.innerHTML = OPTIONS.map(function(o){
       var pris = PRIS[o.id];
       var h = ['<div class="opt' + (pris ? " on" : "") + '">'];
-      h.push('<label><input type="checkbox" data-o="' + E(o.id) + '"' +
-        (pris ? " checked" : "") + '><span><b>' + E(o.nom) + "</b><i>" +
-        sou(o.prix) + " THB " + (UNITE[o.unite] || "") + "</i></span></label>");
+      /* La case n'est pas imbriquee dans le libelle : un clic qui touche les
+         deux declenche alors deux activations, et la case revient a son etat
+         de depart. Elles sont donc voisines, reliees par for. */
+      h.push('<div class="tete"><input type="checkbox" id="o-' + E(o.id) +
+        '" data-o="' + E(o.id) + '"' + (pris ? " checked" : "") +
+        '><label for="o-' + E(o.id) + '"><b>' + E(o.nom) + "</b><i>" +
+        sou(o.prix) + " THB " + (UNITE[o.unite] || "") + "</i></label></div>");
       if (pris){
         if (o.choix === "jours")
           h.push('<div class="reglage">' + stripJours(o.id, pris.jours, OUVERT === o.id) + "</div>");
-        else if (o.choix === "sessions")
+        else if (o.choix === "sessions" || o.choix === "sessions-jours"){
           h.push('<div class="reglage"><label class="pt" for="q-' + E(o.id) + '">How many</label>' +
             '<input class="nb" id="q-' + E(o.id) + '" type="number" min="1" max="60" value="' +
             (pris.q || 1) + '" data-q="' + E(o.id) + '"><span class="aide">' +
             "each guest, " + sou(o.prix) + " THB a time</span></div>");
+          /* Les jours disent quand, pas combien : le prix suit le nombre de
+             seances, les dates servent a l'equipe. */
+          if (o.choix === "sessions-jours")
+            h.push('<div class="reglage"><span class="resume">Which days suit you</span>' +
+              stripJours(o.id, pris.jours, OUVERT === o.id, true) + "</div>");
+        }
       }
       h.push("</div>");
       return h.join("");
-    }).join("") + mesLignes();
+    }).join("") + mesDemandes() + mesLignes();
     dessinePlan();
   }
 
+  /* ---------- les demandes speciales ----------
+     Ce qui ne se met pas dans une grille tarifaire : une arrivee a six heures
+     du matin, une salle montee en cercle, une allergie. On propose les plus
+     courantes pour que le client n'ait pas la page blanche, et il decrit. */
+  var DEMANDES = [
+    "Early check in",
+    "Late check out",
+    "Airport or pier pickup outside normal hours",
+    "A room set up for yoga, a workshop or a meeting",
+    "Projector, screen and sound",
+    "Dietary needs, allergies, vegetarian or vegan",
+    "A birthday or an anniversary to mark",
+    "Flowers and decoration in the rooms",
+    "Laundry turned around quickly",
+    "Scooter or bicycle hire",
+    "Something else"
+  ];
+  var SPEC = [];   /* [{ quoi, detail }] */
+
+  function mesDemandes(){
+    var h = ['<div class="opt mien"><b class="tt">Special requests</b>' +
+      '<span class="aide">Anything that does not fit a price list. Pick the ones ' +
+      "you need and tell us what you have in mind.</span>"];
+    for (var i = 0; i < SPEC.length; i++){
+      h.push('<div class="ligne-mien"><select class="txt" data-sq="' + i + '">' +
+        DEMANDES.map(function(d){
+          return '<option' + (SPEC[i].quoi === d ? " selected" : "") + ">" + E(d) + "</option>";
+        }).join("") + "</select>" +
+        '<button type="button" class="ote" data-so="' + i + '" aria-label="Remove">\u00d7</button>' +
+        '<input class="txt" data-sd="' + i + '" value="' + E(SPEC[i].detail) +
+        '" placeholder="Tell us more, times, numbers, names"></div>');
+    }
+    h.push('<button type="button" class="ajoute" id="spec-plus">Add a request</button></div>');
+    return h.join("");
+  }
+
   /* ---------- les lignes du client ----------
-     Temps libre, une excursion, une habitude du groupe. Elles n'ont pas de
-     prix : on ne devine pas ce qu'on n'a pas chiffre. Elles voyagent avec la
-     demande et arrivent sur la fiche de l'equipe. */
+     Temps libre, une excursion, une habitude du groupe. Le client dit ce que
+     ca coute a son groupe, pour que chacun sache a quoi s'attendre. Ce qui
+     nous concerne, nous le chiffrons et nous le lui ecrivons. */
+  var TARIFS = [
+    ["devis",        "We should quote it"],
+    ["gratuit",      "Free, nothing to pay"],
+    ["participation","With a contribution"],
+    ["paye",         "Paid"],
+    ["dehors",       "We arrange and pay it ourselves"]
+  ];
+
   function mesLignes(){
     var n = nuitsDuSejour();
     var h = ['<div class="opt mien"><b class="tt">Your own plan</b>' +
       '<span class="aide">Free time, an outing, anything you want on the week. ' +
       "We read these and come back with a price if there is one.</span>"];
     for (var i = 0; i < MIENS.length; i++){
+      var m = MIENS[i];
       h.push('<div class="ligne-mien"><input class="txt" data-mt="' + i +
-        '" value="' + E(MIENS[i].texte) + '" placeholder="What is it">' +
-        '<button type="button" class="ote" data-mo="' + i + '" aria-label="Remove">\u00d7</button>');
+        '" value="' + E(m.texte) + '" placeholder="What is it">' +
+        '<button type="button" class="ote" data-mo="' + i + '" aria-label="Remove">\u00d7</button>' +
+        '<span class="sous"><select class="pt-sel" data-mtar="' + i + '">' +
+        TARIFS.map(function(t){
+          return '<option value="' + t[0] + '"' + (m.tarif === t[0] ? " selected" : "") +
+            ">" + E(t[1]) + "</option>";
+        }).join("") + "</select>" +
+        ((m.tarif === "participation" || m.tarif === "paye")
+          ? '<input class="nb" data-mmt="' + i + '" type="number" min="0" step="50" value="' +
+            (m.montant || "") + '" placeholder="THB"><label class="pay"><input type="checkbox" ' +
+            'data-mav="' + i + '"' + (m.avance ? " checked" : "") + ">Paid before arrival</label>"
+          : "") + "</span>");
       if (n.length)
         h.push('<span class="puces">' + n.map(function(j){
-          var on = MIENS[i].jours.indexOf(j) >= 0;
+          var on = m.jours.indexOf(j) >= 0;
           return '<button type="button" class="puce' + (on ? " on" : "") +
             '" data-mj="' + i + "|" + j + '">' + puce(j) + "</button>";
         }).join("") + "</span>");
@@ -238,42 +307,96 @@
     return q;
   }
 
+  /* Refaire le HTML pendant que le navigateur traite encore le clic coupe la
+     suite de l'evenement : un clic sur le libelle d'une case se perdait, le
+     navigateur ne trouvant plus la case qu'il venait de cocher. On redessine
+     au tour suivant. */
+  var enAttente = false;
+  function redessine(etCalcule){
+    if (enAttente) return;
+    enAttente = true;
+    /* Le redessin remplace le HTML : sans cela, qui navigue au clavier perd
+       le focus a chaque case cochee et ne peut plus avancer. */
+    var a = document.activeElement;
+    var repere = a && a.getAttribute
+      ? (a.getAttribute("data-o") ? '[data-o="' + a.getAttribute("data-o") + '"]'
+        : a.id ? "#" + a.id : null)
+      : null;
+    setTimeout(function(){
+      enAttente = false;
+      dessineOptions();
+      if (etCalcule) calcule();
+      if (repere){
+        var r = el("opts").querySelector(repere) || document.querySelector(repere);
+        if (r && r.focus) r.focus();
+      }
+    }, 0);
+  }
+
   /* Un seul ecouteur sur le bloc, qui survit aux redessins. */
   function brancheOptions(){
     var c = el("opts");
     c.addEventListener("change", function(e){
       var t = e.target;
-      if (t.matches("input[data-o]")){
-        var id = t.getAttribute("data-o");
-        PRIS[id] = t.checked ? { q: 1, jours: null } : null;
-        if (!t.checked && OUVERT === id) OUVERT = null;
-        dessineOptions(); calcule(); return;
-      }
       if (t.matches("input[data-q]")){
         var k = t.getAttribute("data-q");
         if (PRIS[k]) PRIS[k].q = Math.max(1, parseInt(t.value, 10) || 1);
         calcule(); return;
       }
       if (t.matches("input[data-mt]")){
-        MIENS[+t.getAttribute("data-mt")].texte = t.value;
+        MIENS[+t.getAttribute("data-mt")].texte = t.value; return;
+      }
+      if (t.matches("select[data-mtar]")){
+        MIENS[+t.getAttribute("data-mtar")].tarif = t.value;
+        redessine(false); return;
+      }
+      if (t.matches("input[data-mmt]")){
+        MIENS[+t.getAttribute("data-mmt")].montant = t.value; return;
+      }
+      if (t.matches("input[data-mav]")){
+        MIENS[+t.getAttribute("data-mav")].avance = t.checked; return;
+      }
+      if (t.matches("select[data-sq]")){
+        SPEC[+t.getAttribute("data-sq")].quoi = t.value; return;
+      }
+      if (t.matches("input[data-sd]")){
+        SPEC[+t.getAttribute("data-sd")].detail = t.value;
       }
     });
     c.addEventListener("input", function(e){
-      if (e.target.matches("input[data-mt]"))
-        MIENS[+e.target.getAttribute("data-mt")].texte = e.target.value;
+      var t = e.target;
+      if (t.matches("input[data-mt]")) MIENS[+t.getAttribute("data-mt")].texte = t.value;
+      if (t.matches("input[data-sd]")) SPEC[+t.getAttribute("data-sd")].detail = t.value;
+      if (t.matches("input[data-mmt]")) MIENS[+t.getAttribute("data-mmt")].montant = t.value;
     });
     c.addEventListener("click", function(e){
+      /* La case et son libelle : une seule lecture du clic, et c'est nous
+         qui tenons l'etat. Sans preventDefault le navigateur cocherait de
+         son cote, puis le redessin la recocherait depuis l'etat, et un clic
+         sur le libelle produirait deux basculements. */
+      var tete = e.target.closest(".opt > .tete");
+      if (tete){
+        var cb = tete.querySelector("input[data-o]");
+        if (cb){
+          e.preventDefault();
+          var id = cb.getAttribute("data-o");
+          PRIS[id] = PRIS[id] ? null : { q: 1, jours: null };
+          if (!PRIS[id] && OUVERT === id) OUVERT = null;
+          redessine(true);
+        }
+        return;
+      }
       var b = e.target.closest("button");
       if (!b) return;
       var v;
       if ((v = b.getAttribute("data-ouvre")) !== null){
-        OUVERT = OUVERT === v ? null : v; dessineOptions(); return;
+        OUVERT = OUVERT === v ? null : v; redessine(false); return;
       }
       if ((v = b.getAttribute("data-tout")) !== null){
-        if (PRIS[v]) PRIS[v].jours = null; dessineOptions(); calcule(); return;
+        if (PRIS[v]) PRIS[v].jours = null; redessine(true); return;
       }
       if ((v = b.getAttribute("data-rien")) !== null){
-        if (PRIS[v]) PRIS[v].jours = [];  dessineOptions(); calcule(); return;
+        if (PRIS[v]) PRIS[v].jours = [];  redessine(true); return;
       }
       if ((v = b.getAttribute("data-jour")) !== null){
         var p = v.split("|"), id = p[0], j = p[1];
@@ -283,20 +406,30 @@
         if (k >= 0) liste.splice(k, 1); else liste.push(j);
         liste.sort();
         PRIS[id].jours = liste.length === nuitsDuSejour().length ? null : liste;
-        dessineOptions(); calcule(); return;
+        redessine(true); return;
       }
       if ((v = b.getAttribute("data-mj")) !== null){
         var q = v.split("|"), i = +q[0], jj = q[1];
         var kk = MIENS[i].jours.indexOf(jj);
         if (kk >= 0) MIENS[i].jours.splice(kk, 1); else MIENS[i].jours.push(jj);
         MIENS[i].jours.sort();
-        dessineOptions(); return;
+        redessine(false); return;
       }
       if ((v = b.getAttribute("data-mo")) !== null){
-        MIENS.splice(+v, 1); dessineOptions(); return;
+        MIENS.splice(+v, 1); redessine(false); return;
+      }
+      if ((v = b.getAttribute("data-so")) !== null){
+        SPEC.splice(+v, 1); redessine(false); return;
+      }
+      if (b.id === "spec-plus"){
+        SPEC.push({ quoi: DEMANDES[0], detail: "" }); dessineOptions();
+        var y = el("opts").querySelectorAll("input[data-sd]");
+        if (y.length) y[y.length - 1].focus();
+        return;
       }
       if (b.id === "mien-plus"){
-        MIENS.push({ texte: "", jours: [] }); dessineOptions();
+        MIENS.push({ texte: "", jours: [], tarif: "devis", montant: "", avance: false });
+        dessineOptions();
         var x = el("opts").querySelectorAll("input[data-mt]");
         if (x.length) x[x.length - 1].focus();
       }
@@ -304,13 +437,34 @@
   }
 
   /* Ce que le client a compose, en clair, pour la demande et pour l'equipe. */
+  function ditTarif(m){
+    if (m.tarif === "gratuit")       return "free";
+    if (m.tarif === "dehors")        return "they arrange and pay it themselves";
+    if (m.tarif === "participation" || m.tarif === "paye"){
+      var q = m.tarif === "paye" ? "paid" : "with a contribution";
+      if (m.montant) q += ", " + sou(m.montant) + " THB";
+      if (m.avance) q += ", paid before arrival";
+      return q;
+    }
+    return "for us to quote";
+  }
   function monPlan(){
     var out = [];
     for (var i = 0; i < MIENS.length; i++){
       var m = MIENS[i];
       if (!m.texte.trim()) continue;
       out.push("- " + m.texte.trim() +
-        (m.jours.length ? " (" + m.jours.map(puce).join(", ") + ")" : ""));
+        (m.jours.length ? " (" + m.jours.map(puce).join(", ") + ")" : "") +
+        " [" + ditTarif(m) + "]");
+    }
+    return out;
+  }
+  function mesVoeux(){
+    var out = [];
+    for (var i = 0; i < SPEC.length; i++){
+      var x = SPEC[i];
+      if (!x.quoi) continue;
+      out.push("- " + x.quoi + (x.detail.trim() ? " : " + x.detail.trim() : ""));
     }
     return out;
   }
@@ -661,6 +815,9 @@
       pays: el("q-pays").value.trim(),
       message: ("Event type: " + el("q-type").value + "\n\n" + el("q-msg").value).trim()
     };
+    var voeux = mesVoeux();
+    if (voeux.length)
+      corps.message += "\n\nSpecial requests:\n" + voeux.join("\n");
     var plan = monPlan();
     if (plan.length)
       corps.message += "\n\nTheir own plan for the week:\n" + plan.join("\n");

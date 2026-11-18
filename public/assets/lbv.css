@@ -405,9 +405,10 @@ body[data-visionneuse=oui] .barre{opacity:0;pointer-events:none}
   transition:border-color .2s}
 .opt:hover{border-color:var(--accent)}
 .opt.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px rgba(175,118,0,.18)}
-.opt>label{display:flex;gap:12px;align-items:flex-start;cursor:pointer}
+.opt>.tete{display:flex;gap:12px;align-items:flex-start}
+.opt>.tete label{cursor:pointer;flex:1}
 .opt input[type=checkbox]{margin-top:3px;accent-color:var(--accent);
-  width:16px;height:16px;flex:none}
+  width:16px;height:16px;flex:none;cursor:pointer}
 .opt b{display:block;font-weight:500;font-size:14.5px;color:var(--primary)}
 .opt i{display:block;font-style:normal;font-size:12.5px;color:var(--secondary);margin-top:3px}
 
@@ -532,3 +533,17 @@ body[data-visionneuse=oui] .barre{opacity:0;pointer-events:none}
   .jcase{min-width:34px;height:30px}
   .copie{margin-left:0;width:100%;text-align:left;margin-top:4px}
 }
+
+/* le tarif d'une ligne libre, et les demandes speciales */
+.ligne-mien .sous{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;
+  width:100%;margin-top:4px}
+.ligne-mien select.pt-sel,.ligne-mien select.txt{padding:8px 11px;border:1px solid var(--trait);
+  background:#fff;font:400 13.5px/1.4 var(--sans);color:var(--text)}
+.ligne-mien select.pt-sel{flex:0 1 auto}
+.ligne-mien select.txt{flex:1 1 220px}
+.ligne-mien .nb{width:108px;padding:8px 10px;border:1px solid var(--trait);background:#fff;
+  font:400 13.5px/1.2 var(--sans);color:var(--text)}
+.ligne-mien .pay{display:flex;align-items:center;gap:7px;font-size:12.5px;
+  color:var(--secondary);cursor:pointer}
+.ligne-mien .pay input{accent-color:var(--accent);width:15px;height:15px}
+.ligne-mien select:focus,.ligne-mien .nb:focus{outline:0;border-color:var(--accent)}
