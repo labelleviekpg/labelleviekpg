@@ -256,9 +256,12 @@
      facon, et les melanger donnait une liste de dix-huit cases ou rien ne
      ressortait. */
   var FAMILLES_OPT = [
+    ["venir", "Getting here and back",
+     "Koh Samui has the airport, and the boat crosses in half an hour. " +
+     "We meet you at either one."],
     ["sejour", "While you are in the house",
-     "Meals, drinks, transfers and the people who come to you."],
-    ["activites", "Out on the island",
+     "The meals beyond breakfast, the wine, and the welcome we lay on for you."],
+    ["activites", "What you do with the week",
      "Pick what you want, for the days you want, for as many of you as you want. " +
      "Nothing here is compulsory and nothing is a package."]
   ];
