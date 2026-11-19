@@ -181,3 +181,32 @@ Le jour ou on touche a ces nombres sans les verifier, remettre
 donnees structurees, plutot que de publier une position devinee qu'un moteur
 prendrait pour la bonne. On releve le point par un clic droit sur la maison
 dans Google Maps, les deux nombres en tete du menu.
+
+## Regler une prestation en voyant la semaine
+
+Le libelle d'une rangee du planning ouvre son panneau **a gauche du
+tableau**, pas plus haut dans la page. On remplit en voyant ce qu'on remplit.
+`PANNEAU` porte l'identifiant de l'option reglee, et `#plan[data-cote="oui"]`
+passe en deux colonnes.
+
+La carte d'une option se dessine en deux morceaux, `carteOption()` pour la
+tete et `reglagesOption()` pour les champs. **Les deux ne se dessinent jamais
+en meme temps** : les champs portent des identifiants, et deux copies en
+casseraient la moitie. Quand le panneau tient les reglages, la carte de la
+liste n'affiche que sa tete et un renvoi.
+
+Les memes ecouteurs servent la liste et le panneau : `brancheOptions()` prend
+son conteneur et s'attache aux deux. Un reglage se comporte pareil des deux
+cotes parce que c'est le meme code qui le lit.
+
+Pour une prestation a la seance, **ne rien avoir choisi veut dire aucun
+jour**, pas tous les jours. Sans cette distinction les pastilles
+s'allumaient toutes sous un texte qui disait le contraire.
+
+Des que les jours sont marques, le champ unique *People each time* disparait :
+chaque seance porte son effectif plus bas, et garder les deux affichait deux
+comptes qui se contredisaient.
+
+L'heure se choisit au quart, dans une liste de quatre-vingt-seize valeurs. Un
+champ libre laissait saisir 08:07, et le selecteur natif demande trois gestes
+sur un telephone.

@@ -230,8 +230,12 @@
   function stripJours(id, choisis, ouvert, indicatif){
     var n = nuitsDuSejour();
     if (!n.length) return '<span class="aide">Choose your dates first.</span>';
-    var tous = !choisis;
-    var cpt = tous ? n.length : choisis.length;
+    /* Pour une prestation a la seance, ne rien avoir choisi veut dire aucun
+       jour, pas tous les jours. Sans cette distinction les pastilles
+       s'allumaient toutes sous un texte qui disait le contraire. */
+    var tous = !indicatif && !choisis;
+    var mis = choisis || [];
+    var cpt = tous ? n.length : mis.length;
     var h = [(indicatif
         ? '<span class="aide">' + (tous || !cpt ? "No day set yet" : cpt + " day" +
             (cpt > 1 ? "s" : "") + " marked") + "</span>"
@@ -245,7 +249,7 @@
       '<button type="button" data-tout="' + E(id) + '">All</button>' +
       '<button type="button" data-rien="' + E(id) + '">None</button></span>');
     h.push('<span class="puces">' + n.map(function(j){
-      var on = tous || choisis.indexOf(j) >= 0;
+      var on = tous || mis.indexOf(j) >= 0;
       return '<button type="button" class="puce' + (on ? " on" : "") +
         '" data-jour="' + E(id) + '|' + j + '">' + puce(j) + "</button>";
     }).join("") + "</span>");
@@ -262,6 +266,26 @@
     return { gens: s && s.gens ? Math.max(1, Math.min(tous, s.gens)) : def,
              h: (s && s.h) || "" };
   }
+  /* L'heure au quart. Un champ libre laissait choisir 08:07, et un selecteur
+     natif demande trois gestes sur un telephone. Quatre-vingt-seize choix,
+     un seul geste, et rien a corriger derriere. */
+  var QUARTS = (function(){
+    var v = [], hh, mm;
+    for (hh = 0; hh < 24; hh++)
+      for (mm = 0; mm < 60; mm += 15)
+        v.push((hh < 10 ? "0" : "") + hh + ":" + (mm < 10 ? "0" : "") + mm);
+    return v;
+  })();
+  function choixHeure(id, j, choisie){
+    return '<select class="hr" data-sh="' + E(id) + "|" + j +
+      '" aria-label="Time on ' + puce(j) + '">' +
+      '<option value=""' + (choisie ? "" : " selected") + ">No time yet</option>" +
+      QUARTS.map(function(t){
+        return '<option value="' + t + '"' + (t === choisie ? " selected" : "") +
+          ">" + t + "</option>";
+      }).join("") + "</select>";
+  }
+
   function listeSeances(o, pris){
     if (!o.gens) return "";
     var js = (pris.jours || []).slice().sort();
@@ -274,9 +298,7 @@
         '<td><input class="nb" type="number" min="1" max="' + tous + '" value="' +
           v.gens + '" data-sg="' + E(o.id) + "|" + j + '" aria-label="People on ' +
           puce(j) + '"><span class="u">people</span></td>' +
-        '<td><input class="hr" type="time" value="' + E(v.h) +
-          '" data-sh="' + E(o.id) + "|" + j + '" aria-label="Time on ' +
-          puce(j) + '"></td></tr>');
+        '<td>' + choixHeure(o.id, j, v.h) + "</td></tr>");
     });
     h.push("</tbody></table><span class=\"aide\">The time is optional. " +
       "It is what turns a list into a plan for the people who look after you." +
@@ -285,6 +307,9 @@
   }
 
   var OUVERT = null;   /* l'option dont le choix de jours est deplie */
+  /* L'option reglee dans le panneau a cote du planning. On regle une
+     prestation en regardant la semaine, pas en remontant la page. */
+  var PANNEAU = null;
 
   /* Deux familles sous deux titres. Les activites de l'ile ne se lisent pas
      comme les repas et les transferts : on ne les parcourt pas de la meme
@@ -301,19 +326,37 @@
      "Nothing here is compulsory and nothing is a package."]
   ];
 
+  /* La carte se coupe en deux. La tete, qui vit toujours dans la liste, et
+     les reglages, qui vont soit sous elle, soit dans le panneau a cote du
+     planning. Les deux ne se dessinent jamais en meme temps : les champs
+     portent des identifiants, et deux copies en casseraient la moitie. */
   function carteOption(o){
+    var pris = PRIS[o.id];
+    var ailleurs = PANNEAU === o.id && pris;
+    var h = ['<div class="opt' + (pris ? " on" : "") +
+      (ailleurs ? " ailleurs" : "") + '">'];
+    /* La case n'est pas imbriquee dans le libelle : un clic qui touche les
+       deux declenche alors deux activations, et la case revient a son etat
+       de depart. Elles sont donc voisines, reliees par for. */
+    h.push('<div class="tete"><input type="checkbox" id="o-' + E(o.id) +
+      '" data-o="' + E(o.id) + '"' + (pris ? " checked" : "") +
+      '><label for="o-' + E(o.id) + '"><b>' + E(o.nom) + "</b><i>" +
+      sou(o.prix) + " THB " +
+      (o.gens ? "per person, per session" : (UNITE[o.unite] || "")) +
+      "</i></label></div>");
+    if (ailleurs)
+      h.push('<p class="aide renvoi">You are setting this one beside your ' +
+        'week, further down. <button type="button" data-voirplan="' + E(o.id) +
+        '">Take me there</button></p>');
+    else h.push(reglagesOption(o));
+    h.push("</div>");
+    return h.join("");
+  }
+
+  function reglagesOption(o){
     return (function(o){
       var pris = PRIS[o.id];
-      var h = ['<div class="opt' + (pris ? " on" : "") + '">'];
-      /* La case n'est pas imbriquee dans le libelle : un clic qui touche les
-         deux declenche alors deux activations, et la case revient a son etat
-         de depart. Elles sont donc voisines, reliees par for. */
-      h.push('<div class="tete"><input type="checkbox" id="o-' + E(o.id) +
-        '" data-o="' + E(o.id) + '"' + (pris ? " checked" : "") +
-        '><label for="o-' + E(o.id) + '"><b>' + E(o.nom) + "</b><i>" +
-        sou(o.prix) + " THB " +
-        (o.gens ? "per person, per session" : (UNITE[o.unite] || "")) +
-        "</i></label></div>");
+      var h = [];
       if (pris){
         if (o.choix === "jours")
           h.push('<div class="reglage">' + stripJours(o.id, pris.jours, OUVERT === o.id) + "</div>");
@@ -333,7 +376,10 @@
           /* Douze personnes ne passent pas sous douze paires de mains en meme
              temps. On demande combien a chaque fois, et on dit tout de suite
              combien de personnes le compte couvre en tout. */
-          if (o.gens){
+          /* Des que les jours sont marques, chaque seance porte son propre
+             effectif plus bas : garder ici un nombre unique affichait deux
+             comptes qui se contredisaient. */
+          if (o.gens && !cale){
             var tous = monde();
             var par = Math.max(1, Math.min(tous, parseInt(pris.gens, 10) || tous));
             var couvre = fois * par;
@@ -356,7 +402,6 @@
           }
         }
       }
-      h.push("</div>");
       return h.join("");
     })(o);
   }
@@ -507,8 +552,11 @@
   }
 
   /* Un seul ecouteur sur le bloc, qui survit aux redessins. */
-  function brancheOptions(){
-    var c = el("opts");
+  /* Les memes ecouteurs servent la liste et le panneau du planning : les
+     reglages d'une prestation se comportent pareil des deux cotes, parce que
+     c'est le meme code qui les lit. */
+  function brancheOptions(c){
+    if (!c) return;
     c.addEventListener("change", function(e){
       var t = e.target;
       if (t.matches("input[data-q]")){
@@ -522,7 +570,7 @@
           PRIS[kg].gens = Math.max(1, Math.min(monde(), parseInt(t.value, 10) || 1));
         redessine(true); return;
       }
-      if (t.matches("input[data-sg]") || t.matches("input[data-sh]")){
+      if (t.matches("input[data-sg]") || t.matches("[data-sh]")){
         var quoi = t.matches("input[data-sg]") ? "gens" : "h";
         var p2 = t.getAttribute(quoi === "gens" ? "data-sg" : "data-sh").split("|");
         var ids = p2[0], jr = p2[1];
@@ -800,6 +848,17 @@
     }
 
     var h = [];
+    var ouvert = PANNEAU && PRIS[PANNEAU] ? optionDe(PANNEAU) : null;
+    if (!ouvert) PANNEAU = null;
+    if (ouvert){
+      h.push('<div class="plan-cote"><div class="tete-cote"><b>' + E(ouvert.nom) +
+        '</b><button type="button" class="ferme-cote" data-fermepan="1" ' +
+        'aria-label="Close">Close</button></div>' +
+        '<p class="aide">' + sou(ouvert.prix) + " THB " +
+        (ouvert.gens ? "per person, per session" : (UNITE[ouvert.unite] || "")) +
+        "</p>" + reglagesOption(ouvert) + "</div>");
+    }
+    h.push('<div class="plan-grille">');
     for (var w = 0; w < sem.length; w++){
       h.push('<div class="sem">');
       h.push('<div class="sem-tete"><b>' +
@@ -824,8 +883,11 @@
         /* Le libelle ouvre la carte de la prestation : c'est la qu'on regle
            le monde et l'heure, et on y pense en regardant la semaine, pas en
            remontant la page. */
-        h.push('<tr><th><button type="button" class="jnom" data-carte="' +
-          E(rang.cle) + '">' + E(rang.nom) + "</button></th>" +
+        var vise = PANNEAU && rang.cle === "o:" + PANNEAU;
+        h.push('<tr' + (vise ? ' class="vise"' : "") +
+          '><th><button type="button" class="jnom' + (vise ? " on" : "") +
+          '" data-carte="' + E(rang.cle) + '" aria-pressed="' +
+          (vise ? "true" : "false") + '">' + E(rang.nom) + "</button></th>" +
           sem[w].map(function(j){
           var on = !!pris[j];
           /* La case ne dit plus seulement oui : elle dit combien et quand.
@@ -850,8 +912,10 @@
     if (hors.length)
       h.push('<p class="aide">Across the whole stay, with no fixed day: ' +
         E(hors.join(", ")) + ".</p>");
+    h.push("</div>");
 
     c.innerHTML = h.join("");
+    c.setAttribute("data-cote", ouvert ? "oui" : "non");
   }
 
   /* Ce qu'on ecrit dans une case : le monde et l'heure quand la prestation
@@ -875,17 +939,27 @@
       if ((v = b.getAttribute("data-carte")) !== null){
         var pc = v.split(":");
         if (pc[0] === "o"){
-          OUVERT = pc[1];
+          /* le panneau s'ouvre a cote du tableau : on regle la prestation
+             en voyant la semaine, sans quitter des yeux ce qu'on remplit */
+          PANNEAU = PANNEAU === pc[1] ? null : pc[1];
+          if (PANNEAU) OUVERT = PANNEAU;
           redessine(false);
-          setTimeout(function(){
-            var c2 = document.getElementById("o-" + pc[1]);
-            var carte = c2 && c2.closest(".opt");
-            if (carte) carte.scrollIntoView({ behavior: "smooth", block: "center" });
-          }, 60);
         } else {
           var mm = el("opts").querySelector('[data-mt="' + pc[1] + '"]');
           if (mm) mm.scrollIntoView({ behavior: "smooth", block: "center" });
         }
+        return;
+      }
+      if (b.getAttribute("data-fermepan") !== null){
+        PANNEAU = null; redessine(false); return;
+      }
+      if ((v = b.getAttribute("data-voirplan")) !== null){
+        PANNEAU = v;
+        redessine(false);
+        setTimeout(function(){
+          var pc2 = el("plan");
+          if (pc2) pc2.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 60);
         return;
       }
       if ((v = b.getAttribute("data-pl")) !== null){
@@ -1170,7 +1244,8 @@
       });
     });
     el("dev").addEventListener("change", function(){ if (devis) montre(devis); });
-    brancheOptions();
+    brancheOptions(el("opts"));
+    brancheOptions(el("plan"));
     branchePlan();
     el("q-go").addEventListener("click", envoie);
   }
