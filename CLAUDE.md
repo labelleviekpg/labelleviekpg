@@ -164,3 +164,19 @@ ou ca se jouera.
 Une fonction nouvelle reservee aux inscrits se ferme par `verrou()`, jamais en
 masquant en CSS : ce qui n'est pas dans la page ne se lit pas dans
 l'inspecteur.
+
+## La carte
+
+Le point etait tombe dans la mer. Les coordonnees de `data/site.json` ne sont
+pas verifiees, et `approximatif: true` le dit.
+
+Tant que ce drapeau est la, deux choses :
+
+- La carte et le lien interrogent Google par le nom et l'adresse, pas par un
+  point. Google sait ou est la maison, nous n'avons qu'une approximation.
+- Les donnees structurees ne portent pas de `GeoCoordinates`. Un moteur les
+  prendrait pour la position exacte. L'adresse postale, elle, est juste.
+
+Pour poser le vrai point : clic droit sur la maison dans Google Maps, les
+deux nombres en tete du menu. Les mettre dans `geo` et retirer
+`approximatif`.

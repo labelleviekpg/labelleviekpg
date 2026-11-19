@@ -193,7 +193,10 @@
      veut un diner les vingt et un soirs : le client designe ses jours, ou
      dit combien de fois. C'est lui qui compose sa semaine. */
   var UNITE = { 1: "per guest, per night", 2: "per guest", 3: "per stay", 4: "per day" };
-  var PRIS = {};     /* id -> { q: 1, jours: [...] | null } */
+  /* id -> { q, jours, gens, seances }. `seances` est le detail jour par
+     jour : { "2027-05-06": { gens: 4, h: "15:00" } }. C'est lui qui fait la
+     difference entre une ligne de facture et un planning. */
+  var PRIS = {};
   var MIENS = [];    /* les lignes que le client ecrit lui-meme */
 
   function nuitsDuSejour(){
@@ -246,6 +249,38 @@
       return '<button type="button" class="puce' + (on ? " on" : "") +
         '" data-jour="' + E(id) + '|' + j + '">' + puce(j) + "</button>";
     }).join("") + "</span>");
+    return h.join("");
+  }
+
+  /* Une seance par jour marque : combien de personnes, et a quelle heure.
+     Le prix suit ces nombres des qu'ils existent. Sans eux on sait qu'il y a
+     trois massages dans la semaine, sans savoir qui passe quand. */
+  function seanceDuJour(o, pris, j){
+    var s = pris.seances && pris.seances[j];
+    var tous = monde();
+    var def = Math.max(1, Math.min(tous, parseInt(pris.gens, 10) || tous));
+    return { gens: s && s.gens ? Math.max(1, Math.min(tous, s.gens)) : def,
+             h: (s && s.h) || "" };
+  }
+  function listeSeances(o, pris){
+    if (!o.gens) return "";
+    var js = (pris.jours || []).slice().sort();
+    if (!js.length) return "";
+    var tous = monde();
+    var h = ['<div class="seances"><span class="pt">Each session</span><table><tbody>'];
+    js.forEach(function(j){
+      var v = seanceDuJour(o, pris, j);
+      h.push("<tr><th>" + puce(j) + "</th>" +
+        '<td><input class="nb" type="number" min="1" max="' + tous + '" value="' +
+          v.gens + '" data-sg="' + E(o.id) + "|" + j + '" aria-label="People on ' +
+          puce(j) + '"><span class="u">people</span></td>' +
+        '<td><input class="hr" type="time" value="' + E(v.h) +
+          '" data-sh="' + E(o.id) + "|" + j + '" aria-label="Time on ' +
+          puce(j) + '"></td></tr>');
+    });
+    h.push("</tbody></table><span class=\"aide\">The time is optional. " +
+      "It is what turns a list into a plan for the people who look after you." +
+      "</span></div>");
     return h.join("");
   }
 
@@ -314,9 +349,11 @@
           }
           /* Les jours disent quand, pas combien : le prix suit le nombre de
              seances, les dates servent a l'equipe. */
-          if (o.choix === "sessions-jours")
+          if (o.choix === "sessions-jours"){
             h.push('<div class="reglage"><span class="resume">Which days</span>' +
               stripJours(o.id, pris.jours, OUVERT === o.id, true) + "</div>");
+            h.push(listeSeances(o, pris));
+          }
         }
       }
       h.push("</div>");
@@ -428,6 +465,17 @@
       q[id] = { q: PRIS[id].q || 1 };
       if (PRIS[id].jours) q[id].jours = PRIS[id].jours;
       if (PRIS[id].gens) q[id].gens = PRIS[id].gens;
+      /* On n'envoie que les seances des jours encore marques : un jour
+         decoche ne doit pas continuer a se facturer depuis un vieux reglage. */
+      if (PRIS[id].jours && PRIS[id].jours.length){
+        var sv = {};
+        PRIS[id].jours.forEach(function(j){
+          var o = optionDe(id);
+          if (!o || !o.gens) return;
+          sv[j] = seanceDuJour(o, PRIS[id], j);
+        });
+        if (Object.keys(sv).length) q[id].seances = sv;
+      }
     }
     return q;
   }
@@ -472,6 +520,20 @@
         var kg = t.getAttribute("data-g");
         if (PRIS[kg])
           PRIS[kg].gens = Math.max(1, Math.min(monde(), parseInt(t.value, 10) || 1));
+        redessine(true); return;
+      }
+      if (t.matches("input[data-sg]") || t.matches("input[data-sh]")){
+        var quoi = t.matches("input[data-sg]") ? "gens" : "h";
+        var p2 = t.getAttribute(quoi === "gens" ? "data-sg" : "data-sh").split("|");
+        var ids = p2[0], jr = p2[1];
+        if (PRIS[ids]){
+          if (!PRIS[ids].seances) PRIS[ids].seances = {};
+          if (!PRIS[ids].seances[jr]) PRIS[ids].seances[jr] = {};
+          if (quoi === "gens")
+            PRIS[ids].seances[jr].gens =
+              Math.max(1, Math.min(monde(), parseInt(t.value, 10) || 1));
+          else PRIS[ids].seances[jr].h = t.value;
+        }
         redessine(true); return;
       }
       if (t.matches("input[data-mt]")){
@@ -637,6 +699,11 @@
     return out;
   }
 
+  function optionDe(id){
+    for (var i = 0; i < OPTIONS.length; i++)
+      if (OPTIONS[i].id === id) return OPTIONS[i];
+    return null;
+  }
   function parSeance(id){
     for (var i = 0; i < OPTIONS.length; i++)
       if (OPTIONS[i].id === id) return OPTIONS[i].choix === "sessions-jours";
@@ -753,12 +820,27 @@
       for (var r = 0; r < rs.length; r++){
         var pris = {};
         for (var b = 0; b < rs[r].jours.length; b++) pris[rs[r].jours[b]] = true;
-        h.push("<tr><th>" + E(rs[r].nom) + "</th>" + sem[w].map(function(j){
+        var rang = rs[r];
+        /* Le libelle ouvre la carte de la prestation : c'est la qu'on regle
+           le monde et l'heure, et on y pense en regardant la semaine, pas en
+           remontant la page. */
+        h.push('<tr><th><button type="button" class="jnom" data-carte="' +
+          E(rang.cle) + '">' + E(rang.nom) + "</button></th>" +
+          sem[w].map(function(j){
           var on = !!pris[j];
+          /* La case ne dit plus seulement oui : elle dit combien et quand.
+             C'est ce qu'on vient y chercher. */
+          var dedans = "";
+          if (on){
+            var d = detailCase(rang, j);
+            dedans = d ? '<span class="qg">' + E(d.gens) + "</span>" +
+              (d.h ? '<span class="qh">' + E(d.h) + "</span>" : "")
+              : "\u2713";
+          }
           return '<td><button type="button" class="jcase' + (on ? " on" : "") +
-            '" data-pl="' + E(rs[r].cle) + "|" + j + '" aria-pressed="' +
-            (on ? "true" : "false") + '" aria-label="' + E(rs[r].nom) + ", " +
-            puce(j) + '">' + (on ? "\u2713" : "") + "</button></td>";
+            '" data-pl="' + E(rang.cle) + "|" + j + '" aria-pressed="' +
+            (on ? "true" : "false") + '" aria-label="' + E(rang.nom) + ", " +
+            puce(j) + '">' + dedans + "</button></td>";
         }).join("") + "</tr>");
       }
       h.push("</tbody></table></div></div>");
@@ -772,6 +854,17 @@
     c.innerHTML = h.join("");
   }
 
+  /* Ce qu'on ecrit dans une case : le monde et l'heure quand la prestation
+     en a, rien de plus qu'une coche sinon. */
+  function detailCase(rang, j){
+    var p = rang.cle.split(":");
+    if (p[0] !== "o") return null;
+    var o = optionDe(p[1]);
+    if (!o || !o.gens || !PRIS[o.id]) return null;
+    var v = seanceDuJour(o, PRIS[o.id], j);
+    return { gens: v.gens, h: v.h };
+  }
+
   function branchePlan(){
     var c = el("plan");
     if (!c) return;
@@ -779,6 +872,22 @@
       var b = e.target.closest("button");
       if (!b) return;
       var v;
+      if ((v = b.getAttribute("data-carte")) !== null){
+        var pc = v.split(":");
+        if (pc[0] === "o"){
+          OUVERT = pc[1];
+          redessine(false);
+          setTimeout(function(){
+            var c2 = document.getElementById("o-" + pc[1]);
+            var carte = c2 && c2.closest(".opt");
+            if (carte) carte.scrollIntoView({ behavior: "smooth", block: "center" });
+          }, 60);
+        } else {
+          var mm = el("opts").querySelector('[data-mt="' + pc[1] + '"]');
+          if (mm) mm.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+        return;
+      }
       if ((v = b.getAttribute("data-pl")) !== null){
         var p = v.split("|");
         poseJour(p[0], p[1], b.getAttribute("aria-pressed") !== "true");

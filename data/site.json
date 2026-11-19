@@ -13,8 +13,10 @@
   "video": "2SAt0HK6fgI",
   "site": "https://www.labelleviekpg.com",
   "geo": {
-    "lat": 9.6889,
-    "lon": 100.0317
+    "lat": 9.7006,
+    "lon": 100.0317,
+    "approximatif": true,
+    "requete": "La Belle Vie Boutique Hotel, 112/5 Moo 1, Ban Tai, Koh Phangan, Surat Thani 84280"
   },
   "artiste": "Anis Dargaa",
   "nav": [
