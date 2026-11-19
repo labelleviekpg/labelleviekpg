@@ -145,10 +145,10 @@ function jsonld(extra){
     address: { "@type": "PostalAddress", streetAddress: "112, 5, Ban Tai",
       addressLocality: "Koh Phangan", addressRegion: "Surat Thani",
       postalCode: "84280", addressCountry: "TH" },
-    /* Les coordonnees ne sont qu'approchees tant que `approximatif` est vrai :
-       on ne les publie pas dans les donnees structurees, ou un moteur les
-       prendrait pour la position exacte de la maison. L'adresse postale, elle,
-       est juste et suffit a situer. */
+    /* Les coordonnees sont celles relevees sur place. Tant qu'elles le sont,
+       elles se publient : un moteur place alors la maison au bon endroit.
+       Reposer `approximatif: true` dans data/site.json les retire d'ici, pour
+       ne pas publier une position devinee. */
     ...(S.geo.approximatif ? {} : {
       geo: { "@type": "GeoCoordinates", latitude: S.geo.lat, longitude: S.geo.lon }
     }),
@@ -809,11 +809,13 @@ ecris("location/index.html", page({
     <div style="margin-top:clamp(32px,4vw,48px)">
       <iframe class="carte" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
         title="Map showing La Belle Vie in Ban Tai, Koh Phangan"
-        src="https://www.google.com/maps?q=${encodeURIComponent(S.geo.requete || `${S.geo.lat},${S.geo.lon}`)}&z=15&output=embed"></iframe>
+        src="https://www.google.com/maps?q=${S.geo.lat},${S.geo.lon}${
+          S.geo.nom ? `(${encodeURIComponent(S.geo.nom)})` : ""
+        }&z=16&output=embed"></iframe>
     </div>
     <div class="bts c">
       <a class="bt vide" target="_blank" rel="noopener"
-         href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(S.geo.requete || `${S.geo.lat},${S.geo.lon}`)}">Open in Google Maps</a>
+         href="https://www.google.com/maps/search/?api=1&query=${S.geo.lat},${S.geo.lon}">Open in Google Maps</a>
     </div>
   </div>
 </section>
@@ -906,7 +908,9 @@ ecris("contact/index.html", page({
     <div style="margin-top:clamp(32px,4vw,48px)">
       <iframe class="carte" loading="lazy" referrerpolicy="no-referrer-when-downgrade"
         title="Map showing La Belle Vie in Ban Tai, Koh Phangan"
-        src="https://www.google.com/maps?q=${encodeURIComponent(S.geo.requete || `${S.geo.lat},${S.geo.lon}`)}&z=15&output=embed"></iframe>
+        src="https://www.google.com/maps?q=${S.geo.lat},${S.geo.lon}${
+          S.geo.nom ? `(${encodeURIComponent(S.geo.nom)})` : ""
+        }&z=16&output=embed"></iframe>
     </div>
   </div>
 </section>

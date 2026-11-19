@@ -167,16 +167,17 @@ l'inspecteur.
 
 ## La carte
 
-Le point etait tombe dans la mer. Les coordonnees de `data/site.json` ne sont
-pas verifiees, et `approximatif: true` le dit.
+Le point etait tombe dans la mer : les coordonnees du depart n'avaient jamais
+ete verifiees, et elles etaient fausses des deux cotes, de deux kilometres et
+demi en longitude.
 
-Tant que ce drapeau est la, deux choses :
+Celles de `data/site.json` ont ete relevees sur place. La carte et le lien
+pointent ce point, avec le nom de la maison entre parentheses pour que
+l'epingle porte une etiquette, et les donnees structurees publient le
+`GeoCoordinates`.
 
-- La carte et le lien interrogent Google par le nom et l'adresse, pas par un
-  point. Google sait ou est la maison, nous n'avons qu'une approximation.
-- Les donnees structurees ne portent pas de `GeoCoordinates`. Un moteur les
-  prendrait pour la position exacte. L'adresse postale, elle, est juste.
-
-Pour poser le vrai point : clic droit sur la maison dans Google Maps, les
-deux nombres en tete du menu. Les mettre dans `geo` et retirer
-`approximatif`.
+Le jour ou on touche a ces nombres sans les verifier, remettre
+`approximatif: true` : le generateur retire alors le `GeoCoordinates` des
+donnees structurees, plutot que de publier une position devinee qu'un moteur
+prendrait pour la bonne. On releve le point par un clic droit sur la maison
+dans Google Maps, les deux nombres en tete du menu.
