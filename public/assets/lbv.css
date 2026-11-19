@@ -399,6 +399,18 @@ body[data-visionneuse=oui] .barre{opacity:0;pointer-events:none}
 /* le calculateur */
 .champs{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));
   margin-top:30px}
+/* Le titre d'une famille traverse la grille, sinon il se range comme une
+   carte et la rangee se decale d'un cran. */
+.fam-opt{grid-column:1 / -1;margin:14px 0 0}
+.opts > .fam-opt:first-child{margin-top:0}
+.fam-opt h3{font-family:var(--serif);font-weight:500;font-size:22px;
+  color:var(--primary);margin:0;display:flex;align-items:baseline;
+  gap:12px;flex-wrap:wrap}
+.fam-opt h3 .pris{font-family:var(--sans);font-size:11px;font-weight:500;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.fam-opt p{margin:5px 0 4px;font-size:14px;line-height:1.6;
+  color:var(--secondary);max-width:70ch}
+
 .opts{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));
   margin-top:26px;align-items:start}
 .opt{border:1px solid var(--trait);padding:13px 15px;background:#fff;

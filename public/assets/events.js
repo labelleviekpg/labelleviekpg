@@ -251,10 +251,20 @@
 
   var OUVERT = null;   /* l'option dont le choix de jours est deplie */
 
-  function dessineOptions(){
-    var c = el("opts");
-    if (!c) return;
-    c.innerHTML = OPTIONS.map(function(o){
+  /* Deux familles sous deux titres. Les activites de l'ile ne se lisent pas
+     comme les repas et les transferts : on ne les parcourt pas de la meme
+     facon, et les melanger donnait une liste de dix-huit cases ou rien ne
+     ressortait. */
+  var FAMILLES_OPT = [
+    ["sejour", "While you are in the house",
+     "Meals, drinks, transfers and the people who come to you."],
+    ["activites", "Out on the island",
+     "Pick what you want, for the days you want, for as many of you as you want. " +
+     "Nothing here is compulsory and nothing is a package."]
+  ];
+
+  function carteOption(o){
+    return (function(o){
       var pris = PRIS[o.id];
       var h = ['<div class="opt' + (pris ? " on" : "") + '">'];
       /* La case n'est pas imbriquee dans le libelle : un clic qui touche les
@@ -308,6 +318,22 @@
       }
       h.push("</div>");
       return h.join("");
+    })(o);
+  }
+
+  function dessineOptions(){
+    var c = el("opts");
+    if (!c) return;
+    c.innerHTML = FAMILLES_OPT.map(function(f){
+      var dedans = OPTIONS.filter(function(o){
+        return (o.groupe || "sejour") === f[0]; });
+      if (!dedans.length) return "";
+      var pris = dedans.filter(function(o){ return PRIS[o.id]; }).length;
+      return '<div class="fam-opt"><h3>' + E(f[1]) +
+        (pris ? '<span class="pris">' + pris +
+          (pris > 1 ? " chosen" : " chosen") + "</span>" : "") +
+        "</h3><p>" + E(f[2]) + "</p></div>" +
+        dedans.map(carteOption).join("");
     }).join("") + mesDemandes() + mesLignes();
     dessinePlan();
   }
