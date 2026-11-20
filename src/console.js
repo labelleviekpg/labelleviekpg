@@ -27,7 +27,8 @@ const ROUTES = [
   "/api/calendrier",
   "/api/devis",
   "/api/change",
-  "/api/tarifs"
+  "/api/tarifs",
+  "/api/annee"
 ];
 
 export function estConsole(chemin){
