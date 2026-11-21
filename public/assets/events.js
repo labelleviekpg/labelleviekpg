@@ -1072,11 +1072,11 @@
       var dit = x.saison ? /private|hotel/i.test(x.saison.nom) : true;
       var mode = (x.saison && !dit)
         ? (x.saison.mode === "privee" ? "private season" : "hotel season") : "";
-      var cadeau = x.palier === "cadeau 70 USD";
+      var cadeau = x.palier === "semaines suivantes";
       h.push("<tr" + (cadeau ? ' class="cadeau"' : "") + "><td>" + jourCourt(x.date) +
         (prise(x.date) ? ' <span class="sai">already taken</span>' : "") + "</td>" +
         "<td>" + E(nom) + (mode ? '<span class="sai"> \u00b7 ' + mode + "</span>" : "") +
-        (cadeau ? '<span class="sai"> \u00b7 best rate, from the eighth night</span>' : "") +
+        (cadeau ? '<span class="sai"> \u00b7 second week, 30 % off</span>' : "") +
         "</td><td>" + enMonnaie(x.prix) + "</td></tr>");
     }
     h.push('</tbody><tfoot><tr><td colspan="2">The house, ' + v.nuits +
