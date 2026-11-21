@@ -4,6 +4,61 @@ Boutique hotel adults only de six chambres a Ban Tai, Koh Phangan. Ce depot est
 le site vitrine. **A ne pas confondre avec le depot `Site`**, qui vend la
 privatisation complete de la maison a un groupe.
 
+## La loi thaïlandaise : nous louons un lieu, nous n'organisons rien
+
+**Contrainte juridique. Elle passe avant le style, avant la tournure, avant
+tout le reste de ce document.**
+
+La retraite appartient toujours au client. Nous louons la propriété. Le mot
+« retraite » reste donc possible, à condition qu'il soit précédé de « votre »
+et jamais de « nos ».
+
+| Jamais | Toujours |
+|---|---|
+| nos retraites | votre retraite, votre séjour, votre groupe |
+| organiser des retraites | accueillir des groupes, louer la propriété |
+| programme de partenariats | offre de location en exclusivité, conditions de location |
+| partenaire, en parlant du prospect | client, locataire, organisateur |
+| notre programme | votre programme ; pour nous : notre offre, nos tarifs |
+| nous proposons des retraites | nous louons la propriété aux groupes en retraite |
+| séjour tout compris, package, forfait | location, devis de location |
+| animateurs partenaires | les organisateurs qui louent chez nous |
+| collaborer, travailler ensemble | louer, réserver |
+
+Phrases prêtes à l'emploi :
+
+- « Nous louons La Belle Vie en exclusivité aux groupes qui organisent leur
+  propre retraite. »
+- « Vous réservez la propriété, vous organisez votre séjour comme vous le
+  souhaitez. »
+- « Notre offre de location en exclusivité comprend… »
+- « Nous avons déjà accueilli un groupe venu avec son propre projet. »
+
+**« régulièrement » est interdit tant que c'est faux.** Un seul groupe accueilli
+à ce jour. On écrit « nous avons déjà accueilli un groupe », jamais « nous
+accueillons régulièrement ».
+
+**« organisateur » désigne le client, jamais nous.** Le mot est juste quand il
+le désigne, lui. Il ne doit simplement jamais nous désigner.
+
+La règle vaut dans toutes les langues. L'anglais tombe dans le même piège avec
+`our retreats`, `we organise`, `we host retreats`, `partner`, `package`,
+`all-inclusive`, `partnership programme`.
+
+### Ce que la règle ne vise pas
+
+Un mot qui décrit le métier du prospect n'est pas concerné, et c'est même tout
+l'intérêt d'une accroche : `your tourism board partnerships`, `a partner hotel`,
+`you already run retreats` parlent de lui.
+
+Un nom d'entreprise non plus. Forbes & Partners s'appelle ainsi.
+
+« Prestataires locaux » et « partenaires locaux » désignent nos fournisseurs,
+pas le client. Ils restent.
+
+Ce qui est interdit, c'est que **nous** apparaissions comme l'organisateur de
+la retraite, ou que le prospect apparaisse comme **notre** partenaire.
+
 ## Regles d'ecriture
 
 - **Jamais de virgule avant `and` ou `et`.** Couper la phrase en deux plutot.
